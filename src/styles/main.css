@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 :root {
-  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
   --surface-0: #ffffff;
   --surface-50: #f8fafc;
   --surface-100: #f1f5f9;
@@ -24,8 +24,16 @@ body {
   min-height: 100vh;
   color: #0f172a;
   background:
-    radial-gradient(circle at 10% 20%, rgba(191, 219, 254, 0.45), transparent 45%),
-    radial-gradient(circle at 90% 80%, rgba(186, 230, 253, 0.35), transparent 45%),
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(191, 219, 254, 0.45),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(186, 230, 253, 0.35),
+      transparent 45%
+    ),
     #f1f5f9;
 }
 
@@ -43,7 +51,9 @@ body {
   border: 1px solid var(--surface-300);
   background: var(--surface-0);
   color: var(--text-strong);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-input .p-inputtext,
@@ -101,4 +111,48 @@ body {
   border-radius: 1.2rem;
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45);
+}
+
+.filepond--root {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+}
+
+.filepond--panel-root {
+  border-radius: 1rem;
+  border: 1px dashed var(--surface-300);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.filepond--drop-label {
+  color: var(--text-soft);
+}
+
+.filepond--label-action {
+  color: var(--brand-600);
+  text-decoration-color: rgba(2, 132, 199, 0.4);
+}
+
+.filepond--file {
+  border-radius: 0.8rem;
+}
+
+.modern-segment .p-selectbutton {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.modern-segment .p-togglebutton {
+  border-radius: 0.85rem;
+  border: 1px solid var(--surface-300);
+  background: var(--surface-0);
+  color: var(--text-soft);
+}
+
+.modern-segment .p-togglebutton.p-togglebutton-checked {
+  border-color: var(--brand-500);
+  background: rgba(2, 132, 199, 0.1);
+  color: var(--brand-700);
 }

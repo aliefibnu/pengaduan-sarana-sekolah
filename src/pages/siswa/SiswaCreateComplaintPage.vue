@@ -2,10 +2,15 @@
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import Button from "primevue/button";
-import FileUpload from "primevue/fileupload";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Textarea from "primevue/textarea";
+import vueFilePond from "vue-filepond";
+import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import "filepond/dist/filepond.min.css";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
 import { useAuthStore } from "@/stores/authStore";
 import { useComplaintStore } from "@/stores/complaintStore";
 import {
@@ -18,7 +23,13 @@ import {
 const router = useRouter();
 const authStore = useAuthStore();
 const complaintStore = useComplaintStore();
-const fileUploader = ref(null);
+const filePondRef = ref(null);
+const pondFiles = ref([]);
+const FilePond = vueFilePond(
+  FilePondPluginImagePreview,
+  FilePondPluginFileValidateType,
+  FilePondPluginFileValidateSize,
+);
 const categoryOptions = [
   { label: "Kelas", value: "Kelas" },
   { label: "Toilet", value: "Toilet" },
@@ -35,8 +46,9 @@ const form = reactive({
   imageFile: null,
 });
 
-function onPickImage(event) {
-  form.imageFile = event.files?.[0] || null;
+function onPondUpdate(fileItems) {
+  pondFiles.value = fileItems.map((item) => item.file);
+  form.imageFile = fileItems[0]?.file || null;
 }
 
 async function handleSubmit() {
@@ -58,7 +70,8 @@ async function handleSubmit() {
     form.description = "";
     form.category = "Kelas";
     form.imageFile = null;
-    if (fileUploader.value) fileUploader.value.clear();
+    pondFiles.value = [];
+    if (filePondRef.value) filePondRef.value.removeFiles();
     router.push("/siswa/history");
   } catch (error) {
     showError(error.message);
@@ -110,13 +123,22 @@ async function handleSubmit() {
 
       <label class="space-y-2 text-sm">
         <span class="font-medium text-slate-700">Foto (opsional)</span>
-        <FileUpload
-          ref="fileUploader"
-          mode="basic"
-          accept="image/*"
-          choose-label="Pilih Foto"
+        <FilePond
+          ref="filePondRef"
+          :files="pondFiles"
+          :allow-multiple="false"
+          :instant-upload="false"
+          :allow-process="false"
+          :allow-reorder="false"
+          :accepted-file-types="['image/png', 'image/jpeg', 'image/webp']"
+          max-file-size="5MB"
+          file-validate-type-label-expected-types="Hanya PNG, JPG, atau WEBP"
+          label-max-file-size-exceeded="Ukuran file terlalu besar"
+          label-max-file-size="Ukuran maksimum file adalah {filesize}"
+          label-idle="Drag & drop foto di sini atau <span class='filepond--label-action'>Pilih File</span>"
+          credits="false"
           class="w-full"
-          @select="onPickImage"
+          @updatefiles="onPondUpdate"
         />
       </label>
 

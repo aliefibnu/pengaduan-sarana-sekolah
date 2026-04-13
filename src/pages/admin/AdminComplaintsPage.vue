@@ -7,6 +7,7 @@ import DatePicker from "primevue/datepicker";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import Select from "primevue/select";
+import SelectButton from "primevue/selectbutton";
 import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
@@ -255,10 +256,6 @@ function openStatusDialog(item) {
   activeStatusItem.value = item;
   statusDraft.value = item.status;
   statusDialogVisible.value = true;
-}
-
-function pickStatus(value) {
-  statusDraft.value = value;
 }
 
 function closeStatusDialog() {
@@ -645,14 +642,15 @@ async function submitFeedback() {
               : "Belum ada pengaduan yang masuk saat ini."
           }}
         </p>
-        <button
+        <Button
           v-if="hasActiveFilter"
-          type="button"
-          class="mt-3 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+          outlined
+          severity="secondary"
+          size="small"
+          label="Reset Filter"
+          class="mt-3"
           @click="resetFilter"
-        >
-          Reset Filter
-        </button>
+        />
       </div>
 
       <div
@@ -865,17 +863,16 @@ async function submitFeedback() {
           {{ activeStatusItem?.title || "Pengaduan" }}
         </p>
 
-        <div class="grid gap-2">
-          <Button
-            v-for="option in statusOptions"
-            :key="option.value"
-            :outlined="statusDraft !== option.value"
-            :label="option.label"
-            :severity="statusDraft === option.value ? 'primary' : 'secondary'"
-            class="justify-start"
-            @click="pickStatus(option.value)"
+        <label class="space-y-2 text-sm">
+          <span class="text-slate-600">Pilih status baru</span>
+          <SelectButton
+            v-model="statusDraft"
+            :options="statusOptions"
+            option-label="label"
+            option-value="value"
+            class="modern-segment w-full"
           />
-        </div>
+        </label>
       </div>
 
       <template #footer>
