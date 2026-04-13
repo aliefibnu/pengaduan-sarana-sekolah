@@ -50,22 +50,12 @@ async function handleSubmit() {
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">
       <label class="auth-input block space-y-2 text-sm">
         <span>Nama lengkap</span>
-        <InputText
-          v-model="form.name"
-          type="text"
-          required
-          class="w-full"
-        />
+        <InputText v-model="form.name" type="text" required class="w-full" />
       </label>
 
       <label class="auth-input block space-y-2 text-sm">
         <span>Email</span>
-        <InputText
-          v-model="form.email"
-          type="email"
-          required
-          class="w-full"
-        />
+        <InputText v-model="form.email" type="email" required class="w-full" />
       </label>
 
       <label class="auth-input block space-y-2 text-sm">
