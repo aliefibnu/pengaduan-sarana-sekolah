@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive } from "vue";
 import { storeToRefs } from "pinia";
+import Select from "primevue/select";
 import ComplaintCard from "@/components/ComplaintCard.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useComplaintStore } from "@/stores/complaintStore";
@@ -14,6 +15,23 @@ const localFilters = reactive({
   status: "",
   category: "",
 });
+
+const statusOptions = [
+  { label: "Semua status", value: "" },
+  { label: "Menunggu", value: "pending" },
+  { label: "Diproses", value: "process" },
+  { label: "Selesai", value: "done" },
+];
+
+const categoryOptions = [
+  { label: "Semua kategori", value: "" },
+  { label: "Kelas", value: "Kelas" },
+  { label: "Toilet", value: "Toilet" },
+  { label: "Laboratorium", value: "Laboratorium" },
+  { label: "Perpustakaan", value: "Perpustakaan" },
+  { label: "Lapangan", value: "Lapangan" },
+  { label: "Lainnya", value: "Lainnya" },
+];
 
 const filteredItems = computed(() => {
   return items.value.filter((item) => {
@@ -45,33 +63,28 @@ onMounted(async () => {
       </p>
 
       <div class="mt-4 grid gap-3 md:grid-cols-2">
-        <label class="space-y-1 text-sm">
+        <label class="admin-input space-y-1 text-sm">
           <span class="text-slate-600">Filter status</span>
-          <select
+          <Select
             v-model="localFilters.status"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          >
-            <option value="">Semua status</option>
-            <option value="pending">Menunggu</option>
-            <option value="process">Diproses</option>
-            <option value="done">Selesai</option>
-          </select>
+            :options="statusOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Semua status"
+            fluid
+          />
         </label>
 
-        <label class="space-y-1 text-sm">
+        <label class="admin-input space-y-1 text-sm">
           <span class="text-slate-600">Filter kategori</span>
-          <select
+          <Select
             v-model="localFilters.category"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          >
-            <option value="">Semua kategori</option>
-            <option>Kelas</option>
-            <option>Toilet</option>
-            <option>Laboratorium</option>
-            <option>Perpustakaan</option>
-            <option>Lapangan</option>
-            <option>Lainnya</option>
-          </select>
+            :options="categoryOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Semua kategori"
+            fluid
+          />
         </label>
       </div>
     </div>

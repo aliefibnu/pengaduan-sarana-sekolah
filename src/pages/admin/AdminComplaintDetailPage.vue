@@ -2,6 +2,9 @@
 import { onMounted, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+import Button from "primevue/button";
+import Select from "primevue/select";
+import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
 import { useFeedbackStore } from "@/stores/feedbackStore";
@@ -25,6 +28,12 @@ const form = reactive({
   status: "pending",
   message: "",
 });
+
+const statusOptions = [
+  { label: "Menunggu", value: "pending" },
+  { label: "Diproses", value: "process" },
+  { label: "Selesai", value: "done" },
+];
 
 onMounted(async () => {
   try {
@@ -105,16 +114,16 @@ async function handleSubmitFeedback() {
 
 <template>
   <section class="space-y-4">
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
+    <article class="admin-panel p-5">
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h3 class="text-lg font-semibold text-slate-900">Detail Pengaduan</h3>
-        <button
-          type="button"
-          class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+        <Button
+          outlined
+          severity="secondary"
+          size="small"
+          label="Kembali ke daftar"
           @click="router.push('/admin/complaints')"
-        >
-          Kembali ke daftar
-        </button>
+        />
       </div>
 
       <p v-if="loading" class="text-sm text-slate-500">
@@ -145,31 +154,28 @@ async function handleSubmitFeedback() {
         />
 
         <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-          <label class="space-y-1 text-sm">
+          <label class="admin-input space-y-1 text-sm">
             <span class="text-slate-600">Status perbaikan</span>
-            <select
+            <Select
               v-model="form.status"
-              class="w-full rounded-xl border border-slate-200 px-3 py-2"
-            >
-              <option value="pending">Menunggu</option>
-              <option value="process">Diproses</option>
-              <option value="done">Selesai</option>
-            </select>
+              :options="statusOptions"
+              option-label="label"
+              option-value="value"
+              fluid
+            />
           </label>
 
-          <button
-            type="button"
-            class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          <Button
+            severity="primary"
+            label="Simpan Status"
             :disabled="submitting"
             @click="handleSaveStatus"
-          >
-            Simpan Status
-          </button>
+          />
         </div>
       </div>
     </article>
 
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
+    <article class="admin-panel p-5">
       <h3 class="text-lg font-semibold text-slate-900">
         Timeline Feedback Admin
       </h3>
@@ -195,20 +201,18 @@ async function handleSubmitFeedback() {
         <label class="text-sm font-medium text-slate-700" for="feedback-input">
           Tambah feedback baru
         </label>
-        <textarea
+        <Textarea
           id="feedback-input"
           v-model="form.message"
           rows="3"
-          class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          class="admin-input w-full"
           placeholder="Tuliskan perkembangan perbaikan fasilitas"
-        ></textarea>
-        <button
-          type="button"
-          class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+        />
+        <Button
+          severity="primary"
+          label="Kirim Feedback"
           @click="handleSubmitFeedback"
-        >
-          Kirim Feedback
-        </button>
+        />
       </div>
     </article>
   </section>

@@ -1,7 +1,9 @@
 <script setup>
-import { reactive, ref } from "vue";
-import { Eye, EyeOff } from "lucide-vue-next";
+import { reactive } from "vue";
 import { useRouter, RouterLink } from "vue-router";
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Password from "primevue/password";
 import { useAuthStore } from "@/stores/authStore";
 import {
   closeLoading,
@@ -17,7 +19,6 @@ const form = reactive({
   email: "",
   password: "",
 });
-const showPassword = ref(false);
 
 async function handleSubmit() {
   openLoading("Login akun...");
@@ -50,47 +51,31 @@ async function handleSubmit() {
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">
-      <label class="block space-y-2 text-sm">
+      <label class="auth-input block space-y-2 text-sm">
         <span>Email</span>
-        <input
+        <InputText
           v-model="form.email"
           type="email"
           required
           placeholder="nama@sekolah.sch.id"
-          class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 outline-none ring-blue-500 transition focus:ring"
+          class="w-full"
         />
       </label>
 
-      <label class="block space-y-2 text-sm">
+      <label class="auth-input block space-y-2 text-sm">
         <span>Password</span>
-        <div class="relative">
-          <input
-            v-model="form.password"
-            :type="showPassword ? 'text' : 'password'"
-            required
-            minlength="6"
-            class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 pr-11 outline-none ring-blue-500 transition focus:ring"
-          />
-          <button
-            type="button"
-            class="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-400 transition hover:text-slate-200"
-            :aria-label="
-              showPassword ? 'Sembunyikan password' : 'Lihat password'
-            "
-            @click="showPassword = !showPassword"
-          >
-            <EyeOff v-if="showPassword" class="h-4 w-4" />
-            <Eye v-else class="h-4 w-4" />
-          </button>
-        </div>
+        <Password
+          v-model="form.password"
+          toggle-mask
+          :feedback="false"
+          required
+          minlength="6"
+          input-class="w-full"
+          class="w-full"
+        />
       </label>
 
-      <button
-        type="submit"
-        class="w-full rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-500"
-      >
-        Masuk
-      </button>
+      <Button type="submit" label="Masuk" class="w-full" />
     </form>
 
     <p class="mt-5 text-center text-sm text-slate-400">

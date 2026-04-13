@@ -156,3 +156,29 @@ body {
   background: rgba(2, 132, 199, 0.1);
   color: var(--brand-700);
 }
+
+.auth-input .p-inputtext,
+.auth-input .p-password,
+.auth-input .p-password-input {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.auth-input .p-inputtext::placeholder,
+.auth-input .p-password-input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-input .p-inputtext:enabled:focus,
+.auth-input .p-password.p-focus .p-password-input,
+.auth-input .p-password-input:enabled:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
+}
+
+.auth-input .p-password .p-password-toggle-mask-icon {
+  color: #94a3b8;
+}
