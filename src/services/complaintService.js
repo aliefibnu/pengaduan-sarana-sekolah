@@ -61,9 +61,7 @@ function normalizeText(value = "") {
 }
 
 function tokenizeSearch(searchTerm = "") {
-  return normalizeText(searchTerm)
-    .split(/\s+/)
-    .filter(Boolean);
+  return normalizeText(searchTerm).split(/\s+/).filter(Boolean);
 }
 
 function mapStatusAliases(status = "") {
