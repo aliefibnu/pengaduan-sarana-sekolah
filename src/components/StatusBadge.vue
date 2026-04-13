@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import Tag from "primevue/tag";
 
 const props = defineProps({
   status: {
@@ -8,16 +9,10 @@ const props = defineProps({
   },
 });
 
-const classes = computed(() => {
-  if (props.status === "done") {
-    return "bg-emerald-100 text-emerald-800 border-emerald-200";
-  }
-
-  if (props.status === "process") {
-    return "bg-amber-100 text-amber-800 border-amber-200";
-  }
-
-  return "bg-slate-100 text-slate-800 border-slate-200";
+const severity = computed(() => {
+  if (props.status === "done") return "success";
+  if (props.status === "process") return "warn";
+  return "secondary";
 });
 
 const label = computed(() => {
@@ -28,10 +23,5 @@ const label = computed(() => {
 </script>
 
 <template>
-  <span
-    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
-    :class="classes"
-  >
-    {{ label }}
-  </span>
+  <Tag :value="label" :severity="severity" rounded />
 </template>

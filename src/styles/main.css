@@ -2,6 +2,17 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --surface-0: #ffffff;
+  --surface-50: #f8fafc;
+  --surface-100: #f1f5f9;
+  --surface-200: #e2e8f0;
+  --surface-300: #cbd5e1;
+  --text-strong: #0f172a;
+  --text-soft: #475569;
+  --brand-500: #0284c7;
+  --brand-600: #0369a1;
+  --brand-700: #075985;
+  --ring-strong: rgba(2, 132, 199, 0.22);
 }
 
 * {
@@ -20,4 +31,74 @@ body {
 
 #app {
   min-height: 100vh;
+}
+
+.admin-input .p-inputtext,
+.admin-input.p-inputtext,
+.admin-input.p-textarea,
+.admin-input.p-select,
+.admin-input.p-datepicker {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid var(--surface-300);
+  background: var(--surface-0);
+  color: var(--text-strong);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-input .p-inputtext,
+.admin-input.p-inputtext,
+.admin-input .p-datepicker-input {
+  min-height: 2.65rem;
+}
+
+.admin-input.p-select {
+  min-height: 2.65rem;
+  display: flex;
+  align-items: center;
+}
+
+.admin-input.p-select .p-select-label,
+.admin-input.p-datepicker .p-inputtext {
+  color: var(--text-strong);
+}
+
+.admin-input.p-select .p-select-dropdown,
+.admin-input.p-datepicker .p-datepicker-dropdown {
+  color: var(--text-soft);
+}
+
+.admin-input .p-inputtext:enabled:focus,
+.admin-input.p-inputtext:enabled:focus,
+.admin-input.p-textarea:enabled:focus,
+.admin-input.p-select.p-focus,
+.admin-input.p-datepicker.p-focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 4px var(--ring-strong);
+  outline: none;
+}
+
+.admin-input.p-select .p-select-overlay,
+.admin-input.p-datepicker .p-datepicker-panel {
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 24px 60px -32px rgba(15, 23, 42, 0.38);
+}
+
+.admin-input.p-select .p-select-overlay {
+  background: var(--surface-0);
+}
+
+.admin-input.p-select .p-select-option.p-focus,
+.admin-input.p-select .p-select-option:not(.p-disabled):hover,
+.admin-input.p-datepicker .p-datepicker-day:not(.p-disabled):hover,
+.admin-input.p-datepicker .p-datepicker-day.p-highlight {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+.admin-panel {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 1.2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45);
 }

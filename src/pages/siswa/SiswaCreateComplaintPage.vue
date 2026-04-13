@@ -1,6 +1,11 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import Button from "primevue/button";
+import FileUpload from "primevue/fileupload";
+import InputText from "primevue/inputtext";
+import Select from "primevue/select";
+import Textarea from "primevue/textarea";
 import { useAuthStore } from "@/stores/authStore";
 import { useComplaintStore } from "@/stores/complaintStore";
 import {
@@ -13,7 +18,15 @@ import {
 const router = useRouter();
 const authStore = useAuthStore();
 const complaintStore = useComplaintStore();
-const fileInput = ref(null);
+const fileUploader = ref(null);
+const categoryOptions = [
+  { label: "Kelas", value: "Kelas" },
+  { label: "Toilet", value: "Toilet" },
+  { label: "Laboratorium", value: "Laboratorium" },
+  { label: "Perpustakaan", value: "Perpustakaan" },
+  { label: "Lapangan", value: "Lapangan" },
+  { label: "Lainnya", value: "Lainnya" },
+];
 
 const form = reactive({
   title: "",
@@ -23,7 +36,7 @@ const form = reactive({
 });
 
 function onPickImage(event) {
-  form.imageFile = event.target.files?.[0] || null;
+  form.imageFile = event.files?.[0] || null;
 }
 
 async function handleSubmit() {
@@ -45,7 +58,7 @@ async function handleSubmit() {
     form.description = "";
     form.category = "Kelas";
     form.imageFile = null;
-    if (fileInput.value) fileInput.value.value = "";
+    if (fileUploader.value) fileUploader.value.clear();
     router.push("/siswa/history");
   } catch (error) {
     showError(error.message);
@@ -56,66 +69,58 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <section class="rounded-2xl bg-white p-5 shadow-sm">
+  <section class="admin-panel p-5">
     <h3 class="text-lg font-semibold text-slate-900">Form Pengaduan Sarana</h3>
     <p class="mt-1 text-sm text-slate-500">
       Jelaskan masalah sejelas mungkin agar proses perbaikan cepat.
     </p>
 
     <form class="mt-5 grid gap-4" @submit.prevent="handleSubmit">
-      <label class="space-y-2 text-sm">
+      <label class="admin-input space-y-2 text-sm">
         <span class="font-medium text-slate-700">Judul pengaduan</span>
-        <input
+        <InputText
           v-model="form.title"
           required
-          class="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-500 transition focus:ring"
+          class="w-full"
           placeholder="Contoh: Lampu kelas 8B mati"
         />
       </label>
 
-      <label class="space-y-2 text-sm">
+      <label class="admin-input space-y-2 text-sm">
         <span class="font-medium text-slate-700">Deskripsi</span>
-        <textarea
+        <Textarea
           v-model="form.description"
           rows="5"
           required
-          class="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-500 transition focus:ring"
+          class="w-full"
           placeholder="Tuliskan detail lokasi dan dampaknya"
-        ></textarea>
+        />
       </label>
 
-      <label class="space-y-2 text-sm">
+      <label class="admin-input space-y-2 text-sm">
         <span class="font-medium text-slate-700">Kategori</span>
-        <select
+        <Select
           v-model="form.category"
-          class="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-500 transition focus:ring"
-        >
-          <option>Kelas</option>
-          <option>Toilet</option>
-          <option>Laboratorium</option>
-          <option>Perpustakaan</option>
-          <option>Lapangan</option>
-          <option>Lainnya</option>
-        </select>
+          :options="categoryOptions"
+          option-label="label"
+          option-value="value"
+          class="w-full"
+        />
       </label>
 
       <label class="space-y-2 text-sm">
         <span class="font-medium text-slate-700">Foto (opsional)</span>
-        <input
-          ref="fileInput"
-          type="file"
+        <FileUpload
+          ref="fileUploader"
+          mode="basic"
           accept="image/*"
-          class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          @change="onPickImage"
+          choose-label="Pilih Foto"
+          class="w-full"
+          @select="onPickImage"
         />
       </label>
 
-      <button
-        type="submit"
-        class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
-      >
-        Kirim Pengaduan
-      </button>
+      <Button type="submit" label="Kirim Pengaduan" class="w-full" />
     </form>
   </section>
 </template>

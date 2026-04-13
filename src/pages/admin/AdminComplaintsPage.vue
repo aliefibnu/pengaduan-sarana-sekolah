@@ -2,6 +2,12 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+import Button from "primevue/button";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import Dialog from "primevue/dialog";
+import Select from "primevue/select";
+import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
 import { useFeedbackStore } from "@/stores/feedbackStore";
@@ -24,6 +30,11 @@ const { items, loading, filters, listMeta } = storeToRefs(complaintStore);
 const users = ref([]);
 const feedbackMessage = ref("");
 const selectedComplaintId = ref("");
+const filterDialogVisible = ref(false);
+const feedbackDialogVisible = ref(false);
+const statusDialogVisible = ref(false);
+const activeStatusItem = ref(null);
+const statusDraft = ref("pending");
 const searchTerm = ref("");
 const sortBy = ref("created_at");
 const sortDirection = ref("desc");
@@ -48,6 +59,52 @@ const categories = [
   "Lapangan",
   "Lainnya",
 ];
+
+const sortByOptions = [
+  { label: "Urutkan: Tanggal", value: "created_at" },
+  { label: "Urutkan: Status", value: "status" },
+  { label: "Urutkan: Kategori", value: "category" },
+  { label: "Urutkan: Judul", value: "title" },
+];
+
+const sortDirectionOptions = [
+  { label: "Terbaru / Z-A", value: "desc" },
+  { label: "Terlama / A-Z", value: "asc" },
+];
+
+const statusOptions = [
+  { label: "Menunggu", value: "pending" },
+  { label: "Diproses", value: "process" },
+  { label: "Selesai", value: "done" },
+];
+
+const selectedDate = computed({
+  get() {
+    return toDateValue(formFilters.date);
+  },
+  set(value) {
+    formFilters.date = toDateString(value);
+  },
+});
+
+const selectedMonth = computed({
+  get() {
+    return toMonthDateValue(formFilters.month);
+  },
+  set(value) {
+    formFilters.month = toMonthString(value);
+  },
+});
+
+const userOptions = computed(() => [
+  { name: "Semua user", id: "" },
+  ...users.value.map((user) => ({ name: user.name, id: user.id })),
+]);
+
+const categoryOptions = computed(() => [
+  { label: "Semua kategori", value: "" },
+  ...categories.map((category) => ({ label: category, value: category })),
+]);
 
 const groupedSummary = computed(() => ({
   activeDate: formFilters.date || "-",
@@ -186,6 +243,46 @@ function resetFilter() {
   loadTable({ page: 1 }).catch((error) => showError(error.message));
 }
 
+function openFilterDialog() {
+  filterDialogVisible.value = true;
+}
+
+function openFeedbackDialog() {
+  feedbackDialogVisible.value = true;
+}
+
+function openStatusDialog(item) {
+  activeStatusItem.value = item;
+  statusDraft.value = item.status;
+  statusDialogVisible.value = true;
+}
+
+function pickStatus(value) {
+  statusDraft.value = value;
+}
+
+function closeStatusDialog() {
+  statusDialogVisible.value = false;
+  activeStatusItem.value = null;
+}
+
+async function applyFilterAndClose() {
+  await applyFilter();
+  filterDialogVisible.value = false;
+}
+
+async function submitFeedbackAndClose() {
+  await submitFeedback();
+  feedbackDialogVisible.value = false;
+}
+
+async function confirmStatusChange() {
+  if (!activeStatusItem.value) return;
+
+  await onChangeStatus(activeStatusItem.value, statusDraft.value);
+  closeStatusDialog();
+}
+
 async function applyFilter() {
   openLoading("Menerapkan filter...");
 
@@ -218,6 +315,35 @@ function prevPage() {
 function toCsvValue(value) {
   const raw = String(value ?? "");
   return `"${raw.replace(/"/g, '""')}"`;
+}
+
+function toDateValue(value) {
+  if (!value) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+}
+
+function toMonthDateValue(value) {
+  if (!value) return null;
+  const [year, month] = value.split("-").map(Number);
+  if (!year || !month) return null;
+  return new Date(year, month - 1, 1);
+}
+
+function toDateString(value) {
+  if (!(value instanceof Date) || Number.isNaN(value.getTime())) return "";
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function toMonthString(value) {
+  if (!(value instanceof Date) || Number.isNaN(value.getTime())) return "";
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
 
 async function exportCsv() {
@@ -342,62 +468,35 @@ async function submitFeedback() {
 
 <template>
   <section class="space-y-4">
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
+    <article class="admin-panel p-5">
       <h3 class="text-lg font-semibold text-slate-900">Filter Pengaduan</h3>
+      <p class="mt-1 text-sm text-slate-500">
+        Semua filter dipindah ke dialog supaya tampilan utama tetap lega.
+      </p>
 
-      <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <label class="space-y-1 text-sm">
-          <span class="text-slate-600">Tanggal</span>
-          <input
-            v-model="formFilters.date"
-            type="date"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          />
-        </label>
-
-        <label class="space-y-1 text-sm">
-          <span class="text-slate-600">Bulan</span>
-          <input
-            v-model="formFilters.month"
-            type="month"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          />
-        </label>
-
-        <label class="space-y-1 text-sm">
-          <span class="text-slate-600">User</span>
-          <select
-            v-model="formFilters.userId"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          >
-            <option value="">Semua user</option>
-            <option v-for="user in users" :key="user.id" :value="user.id">
-              {{ user.name }}
-            </option>
-          </select>
-        </label>
-
-        <label class="space-y-1 text-sm">
-          <span class="text-slate-600">Kategori</span>
-          <select
-            v-model="formFilters.category"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2"
-          >
-            <option value="">Semua kategori</option>
-            <option v-for="category in categories" :key="category">
-              {{ category }}
-            </option>
-          </select>
-        </label>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <Button
+          severity="primary"
+          label="Buka Filter"
+          icon="pi pi-sliders-h"
+          @click="openFilterDialog"
+        />
+        <Button
+          outlined
+          severity="primary"
+          label="Export CSV"
+          icon="pi pi-download"
+          @click="exportCsv"
+        />
+        <Button
+          outlined
+          severity="secondary"
+          label="Reset Filter"
+          icon="pi pi-refresh"
+          :disabled="!hasActiveFilter"
+          @click="resetFilter"
+        />
       </div>
-
-      <button
-        type="button"
-        class="mt-4 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
-        @click="applyFilter"
-      >
-        Terapkan Filter
-      </button>
 
       <p class="mt-3 text-xs text-slate-500">
         Aktif: {{ groupedSummary.activeDate }} |
@@ -406,40 +505,22 @@ async function submitFeedback() {
       </p>
     </article>
 
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
-      <h3 class="text-lg font-semibold text-slate-900">Daftar Pengaduan</h3>
-      <div class="mt-4 flex flex-wrap items-center gap-3">
-        <input
-          v-model="searchTerm"
-          type="text"
-          placeholder="Cari judul, deskripsi, nama user, kategori, status"
-          class="min-w-[260px] flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+    <article class="admin-panel p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">Daftar Pengaduan</h3>
+          <p class="mt-1 text-sm text-slate-500">
+            Urutkan dan cari lewat dialog agar tabel tetap ringkas.
+          </p>
+        </div>
+
+        <Button
+          outlined
+          severity="primary"
+          label="Cari & Urutkan"
+          icon="pi pi-search"
+          @click="openFilterDialog"
         />
-        <button
-          type="button"
-          class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
-          @click="exportCsv"
-        >
-          Export CSV
-        </button>
-
-        <select
-          v-model="sortBy"
-          class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        >
-          <option value="created_at">Urutkan: Tanggal</option>
-          <option value="status">Urutkan: Status</option>
-          <option value="category">Urutkan: Kategori</option>
-          <option value="title">Urutkan: Judul</option>
-        </select>
-
-        <select
-          v-model="sortDirection"
-          class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        >
-          <option value="desc">Terbaru / Z-A</option>
-          <option value="asc">Terlama / A-Z</option>
-        </select>
       </div>
 
       <p v-if="loading || tableBusy" class="mt-3 text-sm text-slate-500">
@@ -528,15 +609,14 @@ async function submitFeedback() {
               </td>
               <td class="px-3 py-3">
                 <div class="flex flex-wrap items-center gap-2">
-                  <select
-                    class="rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                    :value="item.status"
-                    @change="onChangeStatus(item, $event.target.value)"
-                  >
-                    <option value="pending">Menunggu</option>
-                    <option value="process">Diproses</option>
-                    <option value="done">Selesai</option>
-                  </select>
+                  <Button
+                    outlined
+                    size="small"
+                    severity="secondary"
+                    label="Ubah Status"
+                    icon="pi pi-pen-to-square"
+                    @click="openStatusDialog(item)"
+                  />
 
                   <RouterLink
                     :to="`/admin/complaints/${item.id}`"
@@ -584,55 +664,236 @@ async function submitFeedback() {
         </p>
 
         <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+          <Button
+            outlined
+            size="small"
+            severity="secondary"
+            label="Sebelumnya"
             :disabled="listMeta.page === 1"
             @click="prevPage"
-          >
-            Sebelumnya
-          </button>
-          <button
-            type="button"
-            class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <Button
+            outlined
+            size="small"
+            severity="secondary"
+            label="Berikutnya"
             :disabled="listMeta.page === totalPages"
             @click="nextPage"
-          >
-            Berikutnya
-          </button>
+          />
         </div>
       </div>
     </article>
 
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
-      <h3 class="text-lg font-semibold text-slate-900">Kirim Feedback Admin</h3>
+    <article class="admin-panel p-5">
+      <Button
+        label="Buka Feedback"
+        severity="primary"
+        icon="pi pi-comments"
+        @click="openFeedbackDialog"
+      />
+    </article>
 
-      <div class="mt-4 grid gap-3 md:grid-cols-[1fr_2fr]">
-        <select
-          v-model="selectedComplaintId"
-          class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        >
-          <option value="">Pilih pengaduan</option>
-          <option v-for="item in items" :key="item.id" :value="item.id">
-            {{ item.title }} - {{ item.users?.name || "-" }}
-          </option>
-        </select>
+    <Dialog
+      v-model:visible="filterDialogVisible"
+      modal
+      header="Atur Filter & Pencarian"
+      :style="{ width: 'min(56rem, 96vw)' }"
+    >
+      <div class="grid gap-3 md:grid-cols-2">
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Tanggal</span>
+          <DatePicker
+            v-model="selectedDate"
+            input-id="admin-filter-date"
+            show-icon
+            fluid
+            date-format="dd/mm/yy"
+            placeholder="Pilih tanggal"
+          />
+        </label>
 
-        <textarea
-          v-model="feedbackMessage"
-          rows="3"
-          placeholder="Tuliskan progres perbaikan atau informasi tindak lanjut"
-          class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        ></textarea>
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Bulan</span>
+          <DatePicker
+            v-model="selectedMonth"
+            input-id="admin-filter-month"
+            show-icon
+            view="month"
+            date-format="mm/yy"
+            fluid
+            placeholder="Pilih bulan"
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">User</span>
+          <Select
+            v-model="formFilters.userId"
+            :options="userOptions"
+            option-label="name"
+            option-value="id"
+            placeholder="Semua user"
+            fluid
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Kategori</span>
+          <Select
+            v-model="formFilters.category"
+            :options="categoryOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Semua kategori"
+            fluid
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm md:col-span-2">
+          <span class="text-slate-600">Cari</span>
+          <InputText
+            v-model="searchTerm"
+            placeholder="Cari judul, deskripsi, nama user, kategori, status"
+            class="w-full"
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Urutkan berdasarkan</span>
+          <Select
+            v-model="sortBy"
+            :options="sortByOptions"
+            option-label="label"
+            option-value="value"
+            fluid
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Arah urutan</span>
+          <Select
+            v-model="sortDirection"
+            :options="sortDirectionOptions"
+            option-label="label"
+            option-value="value"
+            fluid
+          />
+        </label>
       </div>
 
-      <button
-        type="button"
-        class="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
-        @click="submitFeedback"
-      >
-        Kirim Feedback
-      </button>
-    </article>
+      <template #footer>
+        <div class="flex flex-wrap justify-end gap-2">
+          <Button
+            outlined
+            severity="secondary"
+            label="Reset"
+            icon="pi pi-refresh"
+            @click="resetFilter"
+          />
+          <Button
+            severity="primary"
+            label="Terapkan"
+            icon="pi pi-check"
+            @click="applyFilterAndClose"
+          />
+        </div>
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="feedbackDialogVisible"
+      modal
+      header="Kirim Feedback Admin"
+      :style="{ width: 'min(42rem, 96vw)' }"
+    >
+      <div class="grid gap-3">
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Pilih pengaduan</span>
+          <Select
+            v-model="selectedComplaintId"
+            :options="[
+              { label: 'Pilih pengaduan', value: '' },
+              ...items.map((item) => ({
+                label: `${item.title} - ${item.users?.name || '-'}`,
+                value: item.id,
+              })),
+            ]"
+            option-label="label"
+            option-value="value"
+            fluid
+          />
+        </label>
+
+        <label class="admin-input space-y-1 text-sm">
+          <span class="text-slate-600">Pesan feedback</span>
+          <Textarea
+            v-model="feedbackMessage"
+            rows="4"
+            placeholder="Tuliskan progres perbaikan atau informasi tindak lanjut"
+            class="w-full"
+          />
+        </label>
+      </div>
+
+      <template #footer>
+        <div class="flex flex-wrap justify-end gap-2">
+          <Button
+            outlined
+            severity="secondary"
+            label="Tutup"
+            @click="feedbackDialogVisible = false"
+          />
+          <Button
+            severity="primary"
+            label="Kirim"
+            icon="pi pi-send"
+            @click="submitFeedbackAndClose"
+          />
+        </div>
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="statusDialogVisible"
+      modal
+      header="Ubah Status Pengaduan"
+      :style="{ width: 'min(28rem, 96vw)' }"
+      @hide="closeStatusDialog"
+    >
+      <div class="space-y-3">
+        <p class="text-sm text-slate-600">
+          {{ activeStatusItem?.title || "Pengaduan" }}
+        </p>
+
+        <div class="grid gap-2">
+          <Button
+            v-for="option in statusOptions"
+            :key="option.value"
+            :outlined="statusDraft !== option.value"
+            :label="option.label"
+            :severity="statusDraft === option.value ? 'primary' : 'secondary'"
+            class="justify-start"
+            @click="pickStatus(option.value)"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex flex-wrap justify-end gap-2">
+          <Button
+            outlined
+            severity="secondary"
+            label="Batal"
+            @click="closeStatusDialog"
+          />
+          <Button
+            severity="primary"
+            label="Simpan"
+            icon="pi pi-save"
+            @click="confirmStatusChange"
+          />
+        </div>
+      </template>
+    </Dialog>
   </section>
 </template>
