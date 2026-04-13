@@ -16,7 +16,7 @@ app.use(PrimeVue, {
   theme: {
     preset: appPrimeVuePreset,
     options: {
-      darkModeSelector: ".app-dark",
+      darkModeSelector: "none",
     },
   },
   ripple: true,

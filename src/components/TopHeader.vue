@@ -1,8 +1,5 @@
 <script setup>
-import { LogOut, MoonStar, SunMedium } from "lucide-vue-next";
-import { useThemeStore } from "@/stores/themeStore";
-
-const themeStore = useThemeStore();
+import { LogOut } from "lucide-vue-next";
 
 defineProps({
   name: {
@@ -31,18 +28,6 @@ defineEmits(["logout"]);
       </h2>
       <p class="text-sm text-slate-500">Role: {{ role }}</p>
     </div>
-
-    <button
-      type="button"
-      class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-      @click="themeStore.toggleTheme()"
-    >
-      <component
-        :is="themeStore.isDark ? SunMedium : MoonStar"
-        class="h-4 w-4"
-      />
-      {{ themeStore.isDark ? "Light" : "Dark" }}
-    </button>
 
     <button
       type="button"
