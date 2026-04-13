@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import Select from "primevue/select";
 import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -28,6 +29,7 @@ const form = reactive({
   status: "pending",
   message: "",
 });
+const imagePreviewVisible = ref(false);
 
 const statusOptions = [
   { label: "Menunggu", value: "pending" },
@@ -110,6 +112,11 @@ async function handleSubmitFeedback() {
     closeLoading();
   }
 }
+
+function openImagePreview() {
+  if (!selected.value?.image_url) return;
+  imagePreviewVisible.value = true;
+}
 </script>
 
 <template>
@@ -146,12 +153,23 @@ async function handleSubmitFeedback() {
           {{ selected.description }}
         </p>
 
-        <img
+        <button
           v-if="selected.image_url"
-          :src="selected.image_url"
-          alt="Bukti pengaduan"
-          class="max-h-80 w-full rounded-2xl object-cover"
-        />
+          type="button"
+          class="group w-full overflow-hidden rounded-2xl"
+          @click="openImagePreview"
+        >
+          <img
+            :src="selected.image_url"
+            alt="Bukti pengaduan"
+            class="max-h-80 w-full rounded-2xl object-cover transition group-hover:scale-[1.01]"
+          />
+          <span
+            class="mt-2 inline-flex text-xs font-medium text-blue-700 group-hover:text-blue-800"
+          >
+            Klik foto untuk perbesar
+          </span>
+        </button>
 
         <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
           <label class="admin-input space-y-1 text-sm">
@@ -215,5 +233,19 @@ async function handleSubmitFeedback() {
         />
       </div>
     </article>
+
+    <Dialog
+      v-model:visible="imagePreviewVisible"
+      modal
+      header="Preview Bukti Pengaduan"
+      :style="{ width: 'min(64rem, 96vw)' }"
+    >
+      <img
+        v-if="selected?.image_url"
+        :src="selected.image_url"
+        alt="Bukti pengaduan"
+        class="max-h-[78vh] w-full rounded-xl object-contain"
+      />
+    </Dialog>
   </section>
 </template>

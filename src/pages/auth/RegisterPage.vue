@@ -44,7 +44,7 @@ async function handleSubmit() {
   <div>
     <h2 class="text-2xl font-bold text-white">Registrasi Siswa</h2>
     <p class="mt-1 text-sm text-slate-400">
-      Akun admin dikelola oleh tim sekolah.
+      Isi data dengan benar untuk membuat akun siswa.
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">

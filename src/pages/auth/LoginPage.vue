@@ -47,7 +47,7 @@ async function handleSubmit() {
   <div>
     <h2 class="text-2xl font-bold text-white">Masuk</h2>
     <p class="mt-1 text-sm text-slate-400">
-      Gunakan akun Supabase Anda untuk mengakses dashboard.
+      Masukkan akun Anda untuk mengakses dashboard.
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">

@@ -468,7 +468,7 @@ async function submitFeedback() {
     <article class="admin-panel p-5">
       <h3 class="text-lg font-semibold text-slate-900">Filter Pengaduan</h3>
       <p class="mt-1 text-sm text-slate-500">
-        Semua filter dipindah ke dialog supaya tampilan utama tetap lega.
+        Gunakan filter untuk menemukan pengaduan sesuai kebutuhan.
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-3">
@@ -507,7 +507,7 @@ async function submitFeedback() {
         <div>
           <h3 class="text-lg font-semibold text-slate-900">Daftar Pengaduan</h3>
           <p class="mt-1 text-sm text-slate-500">
-            Urutkan dan cari lewat dialog agar tabel tetap ringkas.
+            Cari dan urutkan data pengaduan dengan cepat.
           </p>
         </div>
 

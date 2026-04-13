@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
+import Dialog from "primevue/dialog";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
 import { useFeedbackStore } from "@/stores/feedbackStore";
@@ -13,6 +14,7 @@ const complaintStore = useComplaintStore();
 const feedbackStore = useFeedbackStore();
 const { selected, loading } = storeToRefs(complaintStore);
 const { items: feedbacks } = storeToRefs(feedbackStore);
+const imagePreviewVisible = ref(false);
 
 onMounted(async () => {
   try {
@@ -22,6 +24,11 @@ onMounted(async () => {
     showError(error.message);
   }
 });
+
+function openImagePreview() {
+  if (!selected.value?.image_url) return;
+  imagePreviewVisible.value = true;
+}
 </script>
 
 <template>
@@ -44,12 +51,23 @@ onMounted(async () => {
           {{ selected.description }}
         </p>
 
-        <img
+        <button
           v-if="selected.image_url"
-          :src="selected.image_url"
-          alt="Bukti pengaduan"
-          class="max-h-72 w-full rounded-2xl object-cover"
-        />
+          type="button"
+          class="group w-full overflow-hidden rounded-2xl"
+          @click="openImagePreview"
+        >
+          <img
+            :src="selected.image_url"
+            alt="Bukti pengaduan"
+            class="max-h-72 w-full rounded-2xl object-cover transition group-hover:scale-[1.01]"
+          />
+          <span
+            class="mt-2 inline-flex text-xs font-medium text-blue-700 group-hover:text-blue-800"
+          >
+            Klik foto untuk perbesar
+          </span>
+        </button>
       </div>
     </article>
 
@@ -73,5 +91,19 @@ onMounted(async () => {
         Belum ada feedback dari admin.
       </p>
     </article>
+
+    <Dialog
+      v-model:visible="imagePreviewVisible"
+      modal
+      header="Preview Bukti Pengaduan"
+      :style="{ width: 'min(64rem, 96vw)' }"
+    >
+      <img
+        v-if="selected?.image_url"
+        :src="selected.image_url"
+        alt="Bukti pengaduan"
+        class="max-h-[78vh] w-full rounded-xl object-contain"
+      />
+    </Dialog>
   </section>
 </template>

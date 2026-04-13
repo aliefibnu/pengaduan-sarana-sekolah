@@ -56,7 +56,7 @@ onMounted(async () => {
     <article class="rounded-2xl bg-white p-5 shadow-sm">
       <h3 class="text-lg font-semibold text-slate-900">Aduan Terbaru</h3>
       <p v-if="loading" class="mt-3 text-sm text-slate-500">
-        Memuat data admin...
+        Memuat data pengaduan...
       </p>
 
       <div v-else-if="latestFour.length" class="mt-4 grid gap-3 md:grid-cols-2">

@@ -2,6 +2,12 @@ import { supabase, getPublicImageUrl } from "./supabase";
 
 const sortableFields = ["created_at", "status", "category", "title"];
 
+const statusLabelMap = {
+  pending: "menunggu",
+  process: "diproses",
+  done: "selesai",
+};
+
 function mapComplaint(item) {
   return {
     ...item,
@@ -39,11 +45,51 @@ function applyComplaintFilters(query, filters = {}, searchTerm = "") {
   if (searchTerm?.trim()) {
     const escaped = searchTerm.trim().replace(/,/g, " ");
     nextQuery = nextQuery.or(
-      `title.ilike.%${escaped}%,description.ilike.%${escaped}%,category.ilike.%${escaped}%,status.ilike.%${escaped}%`,
+      `title.ilike.%${escaped}%,description.ilike.%${escaped}%,category.ilike.%${escaped}%,status.ilike.%${escaped}%,users.name.ilike.%${escaped}%`,
     );
   }
 
   return nextQuery;
+}
+
+function normalizeText(value = "") {
+  return String(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function tokenizeSearch(searchTerm = "") {
+  return normalizeText(searchTerm)
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function mapStatusAliases(status = "") {
+  const normalized = normalizeText(status);
+  const localized = statusLabelMap[normalized] || "";
+
+  return [normalized, localized].filter(Boolean);
+}
+
+function matchesComplaintSearch(item, searchTerm = "") {
+  const keywords = tokenizeSearch(searchTerm);
+  if (!keywords.length) return true;
+
+  const statusKeywords = mapStatusAliases(item.status);
+  const haystack = [
+    item.title,
+    item.description,
+    item.category,
+    item.status,
+    item.users?.name,
+    ...statusKeywords,
+  ]
+    .map((value) => normalizeText(value))
+    .join(" ");
+
+  return keywords.every((keyword) => haystack.includes(keyword));
 }
 
 export async function uploadComplaintImage(file, userId) {
@@ -111,6 +157,7 @@ export async function fetchAllComplaintsPaginated({
   const isAscending = sortDirection === "asc";
   const start = (page - 1) * pageSize;
   const end = start + pageSize - 1;
+  const hasSearchTerm = Boolean(searchTerm?.trim());
 
   let query = supabase
     .from("complaints")
@@ -118,6 +165,26 @@ export async function fetchAllComplaintsPaginated({
       count: "exact",
     })
     .order(safeSortBy, { ascending: isAscending });
+
+  if (hasSearchTerm) {
+    query = applyComplaintFilters(query, filters);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const mappedItems = (data || []).map(mapComplaint);
+    const searchedItems = mappedItems.filter((item) =>
+      matchesComplaintSearch(item, searchTerm),
+    );
+
+    return {
+      items: searchedItems.slice(start, end + 1),
+      total: searchedItems.length,
+      page,
+      pageSize,
+    };
+  }
 
   query = applyComplaintFilters(query, filters, searchTerm).range(start, end);
 
@@ -141,18 +208,28 @@ export async function fetchAllComplaintsForExport({
 } = {}) {
   const safeSortBy = sortableFields.includes(sortBy) ? sortBy : "created_at";
   const isAscending = sortDirection === "asc";
+  const hasSearchTerm = Boolean(searchTerm?.trim());
 
   let query = supabase
     .from("complaints")
     .select("*, users(name), feedbacks(id, message, created_at)")
     .order(safeSortBy, { ascending: isAscending });
 
-  query = applyComplaintFilters(query, filters, searchTerm);
+  query = hasSearchTerm
+    ? applyComplaintFilters(query, filters)
+    : applyComplaintFilters(query, filters, searchTerm);
 
   const { data, error } = await query;
 
   if (error) throw error;
-  return (data || []).map(mapComplaint);
+
+  const mappedItems = (data || []).map(mapComplaint);
+
+  if (!hasSearchTerm) {
+    return mappedItems;
+  }
+
+  return mappedItems.filter((item) => matchesComplaintSearch(item, searchTerm));
 }
 
 export async function updateComplaintStatus({ complaintId, status }) {
