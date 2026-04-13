@@ -16,7 +16,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const form = reactive({
-  email: "",
+  identity: "",
   password: "",
 });
 
@@ -52,12 +52,13 @@ async function handleSubmit() {
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">
       <label class="auth-input block space-y-2 text-sm">
-        <span>Email</span>
+        <span>NISN / Username</span>
         <InputText
-          v-model="form.email"
-          type="email"
+          v-model="form.identity"
+          type="text"
           required
-          placeholder="nama@sekolah.sch.id"
+          placeholder="NISN siswa atau username admin"
+          inputmode="text"
           class="w-full"
         />
       </label>

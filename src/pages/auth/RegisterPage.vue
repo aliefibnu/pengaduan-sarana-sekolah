@@ -17,7 +17,7 @@ const authStore = useAuthStore();
 
 const form = reactive({
   name: "",
-  email: "",
+  identity: "",
   password: "",
 });
 
@@ -44,7 +44,7 @@ async function handleSubmit() {
   <div>
     <h2 class="text-2xl font-bold text-white">Registrasi Siswa</h2>
     <p class="mt-1 text-sm text-slate-400">
-      Isi data dengan benar untuk membuat akun siswa.
+      Isi data dengan benar untuk membuat akun siswa menggunakan NISN.
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">
@@ -54,8 +54,15 @@ async function handleSubmit() {
       </label>
 
       <label class="auth-input block space-y-2 text-sm">
-        <span>Email</span>
-        <InputText v-model="form.email" type="email" required class="w-full" />
+        <span>NISN</span>
+        <InputText
+          v-model="form.identity"
+          type="text"
+          inputmode="numeric"
+          required
+          placeholder="Masukkan NISN siswa"
+          class="w-full"
+        />
       </label>
 
       <label class="auth-input block space-y-2 text-sm">

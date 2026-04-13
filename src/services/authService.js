@@ -1,13 +1,32 @@
 import { supabase } from "./supabase";
 
-export async function registerWithEmail({
+const AUTH_EMAIL_DOMAIN = "skaju.smk";
+
+function normalizeIdentity(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function buildAuthEmail(identity) {
+  const normalizedIdentity = normalizeIdentity(identity);
+
+  if (!normalizedIdentity) {
+    throw new Error("NISN atau username wajib diisi.");
+  }
+
+  return `${normalizedIdentity}@${AUTH_EMAIL_DOMAIN}`;
+}
+
+export async function registerWithAlias({
   name,
-  email,
+  identity,
   password,
   role = "siswa",
 }) {
   const { data, error } = await supabase.auth.signUp({
-    email,
+    email: buildAuthEmail(identity),
     password,
     options: {
       data: {
@@ -30,7 +49,7 @@ export async function registerWithEmail({
 
   // Fallback: coba login langsung agar user tidak perlu flow verifikasi dari UI.
   try {
-    const loginResult = await loginWithEmail({ email, password });
+    const loginResult = await loginWithAlias({ identity, password });
     return loginResult;
   } catch (error) {
     throw new Error(
@@ -39,9 +58,9 @@ export async function registerWithEmail({
   }
 }
 
-export async function loginWithEmail({ email, password }) {
+export async function loginWithAlias({ identity, password }) {
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: buildAuthEmail(identity),
     password,
   });
   if (error) throw error;

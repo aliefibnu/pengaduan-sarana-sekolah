@@ -15,7 +15,7 @@ MVP aplikasi pengaduan fasilitas sekolah berbasis Vue 3 + Pinia + Supabase.
 ## Fitur Utama
 
 - Siswa:
-  - Registrasi dan login
+  - Registrasi dan login menggunakan NISN
   - Buat pengaduan (judul, deskripsi, kategori, foto opsional)
   - Lihat status aduan (pending, process, done)
   - Lihat riwayat dan feedback admin
@@ -55,7 +55,9 @@ npm run dev
 ## Catatan Auth & Role
 
 - Role dibaca dari JWT metadata Supabase (`role: admin | siswa`).
-- Saat register dari UI, role default adalah `siswa`.
+- Saat register dari UI, role default adalah `siswa` dan identitas yang diinput adalah NISN.
+- Saat login, siswa memakai NISN dan admin memakai username.
+- Di Supabase, aplikasi tetap memakai email alias dengan format `{identitas}@skaju.smk`.
 - Untuk akun admin, set metadata role `admin` dari Supabase Dashboard.
 - Jika admin mendapat data kosong saat fetch complaint, pastikan policy RLS membaca `user_metadata.role` atau `app_metadata.role` dan bukan claim `role` mentah.
 

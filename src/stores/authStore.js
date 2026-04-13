@@ -2,10 +2,10 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import {
   getSession,
-  loginWithEmail,
+  loginWithAlias,
   logout,
   onAuthStateChange,
-  registerWithEmail,
+  registerWithAlias,
 } from "@/services/authService";
 
 export const useAuthStore = defineStore("auth", () => {
@@ -26,7 +26,9 @@ export const useAuthStore = defineStore("auth", () => {
     user.value = value?.user || null;
     role.value = value?.user?.user_metadata?.role || "guest";
     profileName.value =
-      value?.user?.user_metadata?.name || value?.user?.email || "";
+      value?.user?.user_metadata?.name ||
+      value?.user?.email?.split("@")[0] ||
+      "";
   }
 
   async function initAuth() {
@@ -50,7 +52,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function signIn(payload) {
     loading.value = true;
     try {
-      const data = await loginWithEmail(payload);
+      const data = await loginWithAlias(payload);
       hydrateFromSession(data.session);
       return data;
     } finally {
@@ -61,7 +63,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function signUp(payload) {
     loading.value = true;
     try {
-      const data = await registerWithEmail(payload);
+      const data = await registerWithAlias(payload);
       hydrateFromSession(data.session);
       return data;
     } finally {
