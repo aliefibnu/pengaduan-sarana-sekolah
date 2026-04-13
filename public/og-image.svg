@@ -1,0 +1,44 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#020617" />
+      <stop offset="0.55" stop-color="#0F172A" />
+      <stop offset="1" stop-color="#0369A1" />
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(226 158) rotate(62) scale(234 310)">
+      <stop stop-color="#38BDF8" stop-opacity="0.65" />
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1003 454) rotate(-118) scale(264 341)">
+      <stop stop-color="#22C55E" stop-opacity="0.38" />
+      <stop offset="1" stop-color="#22C55E" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" rx="48" fill="url(#bg)" />
+  <rect width="1200" height="630" rx="48" fill="url(#glow1)" />
+  <rect width="1200" height="630" rx="48" fill="url(#glow2)" />
+  <g opacity="0.18">
+    <circle cx="1056" cy="94" r="118" fill="#FFFFFF" />
+    <circle cx="182" cy="500" r="152" fill="#FFFFFF" />
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="84" y="90" width="380" height="72" rx="24" fill="#0B1220" fill-opacity="0.72" stroke="rgba(255,255,255,0.14)" />
+    <text x="120" y="134" fill="#BAE6FD" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="3">PENGADUAN SARANA SEKOLAH</text>
+  </g>
+  <text x="86" y="286" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-1.5">Laporkan fasilitas bermasalah,</text>
+  <text x="86" y="358" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-1.5">pantau perbaikan dengan jelas.</text>
+  <text x="88" y="430" fill="#C7D2FE" font-family="Arial, sans-serif" font-size="30" font-weight="400">NISN untuk siswa, username untuk admin, alur tindak lanjut transparan.</text>
+  <g>
+    <rect x="86" y="486" width="236" height="60" rx="20" fill="#22D3EE" />
+    <text x="116" y="524" fill="#082F49" font-family="Arial, sans-serif" font-size="26" font-weight="800">Pengaduan cepat</text>
+  </g>
+  <g>
+    <rect x="338" y="486" width="228" height="60" rx="20" fill="#FFFFFF" fill-opacity="0.08" stroke="rgba(255,255,255,0.2)" />
+    <text x="372" y="524" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="26" font-weight="700">Status real-time</text>
+  </g>
+  <defs>
+    <filter id="shadow" x="0" y="0" width="1200" height="630" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#020617" flood-opacity="0.45" />
+    </filter>
+  </defs>
+</svg>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /siswa/
+Disallow: /login
+Disallow: /register
+
+# Ganti dengan domain produksi setelah deploy.
+# Contoh: Sitemap: https://domain-anda.com/sitemap.xml
