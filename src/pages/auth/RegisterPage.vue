@@ -21,6 +21,13 @@ const form = reactive({
   password: "",
 });
 
+function handleNisInput(event) {
+  const nextValue = String(event?.target?.value || "")
+    .replace(/\D/g, "")
+    .slice(0, 8);
+  form.identity = nextValue;
+}
+
 async function handleSubmit() {
   openLoading("Mendaftarkan akun...");
 
@@ -44,7 +51,7 @@ async function handleSubmit() {
   <div>
     <h2 class="text-2xl font-bold text-white">Registrasi Siswa</h2>
     <p class="mt-1 text-sm text-slate-400">
-      Isi data dengan benar untuk membuat akun siswa menggunakan NISN.
+      Isi data dengan benar untuk membuat akun siswa menggunakan NIS.
     </p>
 
     <form class="mt-6 space-y-4" @submit.prevent="handleSubmit">
@@ -54,13 +61,15 @@ async function handleSubmit() {
       </label>
 
       <label class="auth-input block space-y-2 text-sm">
-        <span>NISN</span>
+        <span>NIS</span>
         <InputText
           v-model="form.identity"
           type="text"
           inputmode="numeric"
           required
-          placeholder="Masukkan NISN siswa"
+          maxlength="8"
+          placeholder="Masukkan NIS siswa"
+          @input="handleNisInput"
           class="w-full"
         />
       </label>
