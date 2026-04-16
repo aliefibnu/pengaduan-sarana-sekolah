@@ -160,7 +160,9 @@ export async function createComplaint(payload) {
 export async function fetchMyComplaints(userId) {
   const { data, error } = await supabase
     .from("complaints")
-    .select("*, users(name), feedbacks(id, message, created_at)")
+    .select(
+      "*, users(name), feedbacks(id, message, progress_percentage, created_at)",
+    )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -171,7 +173,9 @@ export async function fetchMyComplaints(userId) {
 export async function fetchAllComplaints(filters = {}) {
   let query = supabase
     .from("complaints")
-    .select("*, users(name), feedbacks(id, message, created_at)")
+    .select(
+      "*, users(name), feedbacks(id, message, progress_percentage, created_at)",
+    )
     .order("created_at", { ascending: false });
 
   query = applyComplaintFilters(query, filters);
@@ -284,9 +288,11 @@ export async function markComplaintAsDone({ complaintId }) {
 
   const { data, error } = await supabase
     .from("complaints")
-    .update({ status: "done" })
+    .update({ status: "done", completed_at: new Date().toISOString() })
     .eq("id", complaintId)
-    .select("*, users(name), feedbacks(id, message, created_at)")
+    .select(
+      "*, users(name), feedbacks(id, message, progress_percentage, created_at)",
+    )
     .single();
 
   if (error) throw error;
@@ -343,7 +349,9 @@ export async function deleteOwnComplaint({ complaintId, userId }) {
 export async function fetchComplaintById(complaintId) {
   const { data, error } = await supabase
     .from("complaints")
-    .select("*, users(name), feedbacks(id, message, created_at)")
+    .select(
+      "*, users(name), feedbacks(id, message, progress_percentage, created_at)",
+    )
     .eq("id", complaintId)
     .single();
 

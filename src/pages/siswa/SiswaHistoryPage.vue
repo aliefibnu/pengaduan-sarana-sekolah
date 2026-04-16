@@ -59,30 +59,34 @@ onMounted(async () => {
     <div class="rounded-2xl bg-white p-5 shadow-sm">
       <h3 class="text-lg font-semibold text-slate-900">Riwayat Pengaduan</h3>
       <p class="mt-1 text-sm text-slate-500">
-        Gunakan filter untuk melihat status laporan secara cepat.
+        Lihat perjalanan aduan kamu di sini.
       </p>
 
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <label class="admin-input space-y-1 text-sm">
-          <span class="text-slate-600">Filter status</span>
+          <span class="text-slate-600">Status</span>
           <Select
             v-model="localFilters.status"
             :options="statusOptions"
             option-label="label"
             option-value="value"
             placeholder="Semua status"
+            filter
+            filter-placeholder="Cari status"
             fluid
           />
         </label>
 
         <label class="admin-input space-y-1 text-sm">
-          <span class="text-slate-600">Filter kategori</span>
+          <span class="text-slate-600">Kategori</span>
           <Select
             v-model="localFilters.category"
             :options="categoryOptions"
             option-label="label"
             option-value="value"
             placeholder="Semua kategori"
+            filter
+            filter-placeholder="Cari kategori"
             fluid
           />
         </label>
@@ -105,7 +109,7 @@ onMounted(async () => {
       </div>
 
       <p v-else class="text-sm text-slate-500">
-        Tidak ada data sesuai filter saat ini.
+        Belum ada aduan yang cocok.
       </p>
     </div>
   </section>

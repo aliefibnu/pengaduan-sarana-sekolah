@@ -55,6 +55,22 @@ const canModify = computed(() => {
   );
 });
 
+const timelineItems = computed(() => {
+  return [...feedbacks.value].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  );
+});
+
+const latestTimelineProgress = computed(() => {
+  if (selected.value?.status === "done") return 100;
+
+  const latestFeedback = timelineItems.value[timelineItems.value.length - 1];
+  if (!latestFeedback) return null;
+
+  const value = latestFeedback.progress_percentage;
+  return value === null || value === undefined ? null : value;
+});
+
 watch(
   () => selected.value,
   (complaint) => {
@@ -212,8 +228,7 @@ async function handleDeleteComplaint() {
           </template>
 
           <p v-else class="text-xs text-slate-500">
-            Aspirasi terkunci karena sudah ada progres dari admin atau tidak
-            lagi berstatus menunggu.
+            Aduan ini sudah berjalan, jadi tidak bisa diubah lagi.
           </p>
         </div>
 
@@ -254,6 +269,8 @@ async function handleDeleteComplaint() {
               :options="categoryOptions"
               option-label="label"
               option-value="value"
+              filter
+              filter-placeholder="Cari kategori"
               class="w-full"
             />
           </label>
@@ -263,6 +280,7 @@ async function handleDeleteComplaint() {
               outlined
               severity="secondary"
               label="Batal"
+              icon="pi pi-times"
               :disabled="submitting"
               @click="cancelEditing"
             />
@@ -270,6 +288,7 @@ async function handleDeleteComplaint() {
               type="submit"
               severity="primary"
               label="Simpan Perubahan"
+              icon="pi pi-check"
               :disabled="submitting"
             />
           </div>
@@ -300,23 +319,83 @@ async function handleDeleteComplaint() {
     </article>
 
     <article class="rounded-2xl bg-white p-5 shadow-sm">
-      <h4 class="text-base font-semibold text-slate-900">Progres Admin</h4>
+      <h4 class="text-base font-semibold text-slate-900">Riwayat Penanganan</h4>
 
-      <div v-if="feedbacks.length" class="mt-3 space-y-2">
-        <div
-          v-for="item in feedbacks"
-          :key="item.id"
-          class="rounded-xl border border-slate-200 bg-slate-50 p-3"
-        >
-          <p class="text-sm text-slate-700">{{ item.message }}</p>
-          <p class="mt-1 text-xs text-slate-500">
-            {{ formatDate(item.created_at) }}
-          </p>
+      <div v-if="timelineItems.length" class="mt-4 pl-1">
+        <div class="relative pl-7">
+          <span class="absolute bottom-0 left-[11px] top-1 w-px bg-slate-200"></span>
+
+          <div
+            v-if="latestTimelineProgress !== null"
+            class="relative pb-5"
+          >
+            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-600 bg-blue-600"></span>
+            <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
+              <div
+                class="mb-1 flex items-center justify-between text-xs font-semibold text-blue-700"
+              >
+                <span>Progres</span>
+                <span>{{ latestTimelineProgress }}%</span>
+              </div>
+              <div class="h-2 rounded-full bg-blue-100">
+                <div
+                  class="h-2 rounded-full bg-blue-600 transition-all"
+                  :style="{ width: `${latestTimelineProgress}%` }"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="selected?.completed_at"
+            class="relative pb-5"
+          >
+            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-emerald-600 bg-emerald-600"></span>
+            <div
+              class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs font-medium text-emerald-700"
+            >
+              Selesai: {{ formatDate(selected.completed_at) }}
+            </div>
+          </div>
+
+          <div
+            v-for="(item, index) in timelineItems"
+            :key="item.id"
+            class="relative pb-5 last:pb-0"
+          >
+            <span
+              class="absolute -left-7 top-2 h-3 w-3 rounded-full border"
+              :class="
+                index === 0
+                  ? 'border-blue-600 bg-blue-600'
+                  : 'border-slate-300 bg-white'
+              "
+            ></span>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="text-sm text-slate-700">{{ item.message }}</p>
+              <p class="mt-1 text-xs text-slate-500">
+                {{ formatDate(item.created_at) }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            v-if="selected?.first_response_at"
+            class="relative"
+          >
+            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-300 bg-white"></span>
+            <div
+              class="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs font-medium text-blue-700"
+            >
+              Direspon: {{ formatDate(selected.first_response_at) }}
+            </div>
+          </div>
         </div>
       </div>
 
       <p v-else class="mt-3 text-sm text-slate-500">
-        Belum ada feedback dari admin.
+        Belum ada kabar terbaru.
       </p>
     </article>
 

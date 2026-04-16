@@ -18,6 +18,8 @@ create table if not exists public.complaints (
   category text not null,
   image_path text,
   status text not null default 'pending' check (status in ('pending', 'process', 'done')),
+  first_response_at timestamptz,
+  completed_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -25,6 +27,7 @@ create table if not exists public.feedbacks (
   id uuid primary key default gen_random_uuid(),
   complaint_id uuid not null references public.complaints(id) on delete cascade,
   message text not null,
+  progress_percentage integer check (progress_percentage >= 0 and progress_percentage <= 100),
   created_at timestamptz not null default now()
 );
 

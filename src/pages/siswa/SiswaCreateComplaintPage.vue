@@ -118,12 +118,14 @@ async function handleSubmit() {
           :options="categoryOptions"
           option-label="label"
           option-value="value"
+          filter
+          filter-placeholder="Cari kategori"
           class="w-full"
         />
       </label>
 
       <label class="space-y-2 text-sm">
-        <span class="font-medium text-slate-700">Foto (opsional)</span>
+        <span class="font-medium text-slate-700">Foto (boleh kosong)</span>
         <FilePond
           ref="filePondRef"
           :files="pondFiles"

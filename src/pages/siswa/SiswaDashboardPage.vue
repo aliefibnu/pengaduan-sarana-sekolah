@@ -58,9 +58,10 @@ onMounted(async () => {
         <h3 class="text-lg font-semibold text-slate-900">Pengaduan Terbaru</h3>
         <RouterLink
           to="/siswa/new"
-          class="rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-500"
+          class="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-500"
         >
-          + Buat Pengaduan
+          <i class="pi pi-plus-circle"></i>
+          Buat Pengaduan
         </RouterLink>
       </div>
 
@@ -79,8 +80,7 @@ onMounted(async () => {
       </div>
 
       <p v-else class="text-sm text-slate-500">
-        Belum ada pengaduan. Mulai kirim laporan agar fasilitas sekolah bisa
-        segera ditindaklanjuti.
+        Belum ada aduan. Yuk kirim aduan pertama kamu.
       </p>
     </div>
   </section>

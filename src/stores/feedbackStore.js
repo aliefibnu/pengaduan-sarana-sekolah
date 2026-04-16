@@ -23,7 +23,11 @@ export const useFeedbackStore = defineStore("feedback", () => {
     submitting.value = true;
 
     try {
-      const created = await createFeedback(payload);
+      const created = await createFeedback({
+        complaint_id: payload.complaint_id,
+        message: payload.message,
+        progress_percentage: payload.progress_percentage ?? null,
+      });
       items.value = [created, ...items.value];
       return created;
     } finally {

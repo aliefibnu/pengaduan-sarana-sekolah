@@ -119,6 +119,12 @@ const hasActiveFilter = computed(() => {
   );
 });
 
+const maxDate = computed(() => {
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  return today;
+});
+
 onMounted(async () => {
   try {
     const initialPage = hydrateFromQuery();
@@ -467,7 +473,9 @@ async function submitFeedback() {
               <th class="px-3 py-3">User</th>
               <th class="px-3 py-3">Kategori</th>
               <th class="px-3 py-3">Status</th>
-              <th class="px-3 py-3">Tanggal</th>
+              <th class="px-3 py-3">Dibuat</th>
+              <th class="px-3 py-3">Direspon</th>
+              <th class="px-3 py-3">Selesai</th>
               <th class="rounded-r-xl px-3 py-3">Aksi</th>
             </tr>
           </thead>
@@ -495,7 +503,13 @@ async function submitFeedback() {
                 ></div>
               </td>
               <td class="px-3 py-3">
-                <div class="h-4 w-28 animate-pulse rounded bg-slate-200"></div>
+                <div class="h-4 w-24 animate-pulse rounded bg-slate-200"></div>
+              </td>
+              <td class="px-3 py-3">
+                <div class="h-4 w-24 animate-pulse rounded bg-slate-200"></div>
+              </td>
+              <td class="px-3 py-3">
+                <div class="h-4 w-24 animate-pulse rounded bg-slate-200"></div>
               </td>
               <td class="px-3 py-3">
                 <div class="h-6 w-28 animate-pulse rounded bg-slate-200"></div>
@@ -515,7 +529,9 @@ async function submitFeedback() {
               <th class="px-3 py-3">User</th>
               <th class="px-3 py-3">Kategori</th>
               <th class="px-3 py-3">Status</th>
-              <th class="px-3 py-3">Tanggal</th>
+              <th class="px-3 py-3">Dibuat</th>
+              <th class="px-3 py-3">Direspon</th>
+              <th class="px-3 py-3">Selesai</th>
               <th class="rounded-r-xl px-3 py-3">Aksi</th>
             </tr>
           </thead>
@@ -537,12 +553,23 @@ async function submitFeedback() {
               <td class="px-3 py-3 text-xs text-slate-600">
                 {{ formatDate(item.created_at) }}
               </td>
+              <td class="px-3 py-3 text-xs text-slate-600">
+                {{
+                  item.first_response_at
+                    ? formatDate(item.first_response_at)
+                    : "-"
+                }}
+              </td>
+              <td class="px-3 py-3 text-xs text-slate-600">
+                {{ item.completed_at ? formatDate(item.completed_at) : "-" }}
+              </td>
               <td class="px-3 py-3">
                 <div class="flex flex-wrap items-center gap-2">
                   <RouterLink
                     :to="`/admin/complaints/${item.id}`"
-                    class="rounded-lg border border-blue-200 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                    class="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
                   >
+                    <i class="pi pi-eye"></i>
                     Detail
                   </RouterLink>
                 </div>
@@ -631,6 +658,7 @@ async function submitFeedback() {
             fluid
             date-format="dd/mm/yy"
             placeholder="Pilih tanggal"
+            :maxDate="maxDate"
           />
         </label>
 
@@ -644,6 +672,7 @@ async function submitFeedback() {
             date-format="mm/yy"
             fluid
             placeholder="Pilih bulan"
+            :maxDate="maxDate"
           />
         </label>
 
@@ -655,6 +684,8 @@ async function submitFeedback() {
             option-label="name"
             option-value="id"
             placeholder="Semua user"
+            filter
+            filter-placeholder="Cari user"
             fluid
           />
         </label>
@@ -667,6 +698,8 @@ async function submitFeedback() {
             option-label="label"
             option-value="value"
             placeholder="Semua kategori"
+            filter
+            filter-placeholder="Cari kategori"
             fluid
           />
         </label>
@@ -687,6 +720,8 @@ async function submitFeedback() {
             :options="sortByOptions"
             option-label="label"
             option-value="value"
+            filter
+            filter-placeholder="Cari urutan"
             fluid
           />
         </label>
@@ -698,6 +733,8 @@ async function submitFeedback() {
             :options="sortDirectionOptions"
             option-label="label"
             option-value="value"
+            filter
+            filter-placeholder="Cari arah"
             fluid
           />
         </label>
@@ -742,6 +779,8 @@ async function submitFeedback() {
             ]"
             option-label="label"
             option-value="value"
+            filter
+            filter-placeholder="Cari pengaduan"
             fluid
           />
         </label>
