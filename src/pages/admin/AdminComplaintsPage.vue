@@ -7,7 +7,6 @@ import DatePicker from "primevue/datepicker";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import Select from "primevue/select";
-import SelectButton from "primevue/selectbutton";
 import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
@@ -16,7 +15,6 @@ import { fetchUsers } from "@/services/userService";
 import { formatDate, monthLabel } from "@/utils/format";
 import {
   closeLoading,
-  confirmAction,
   openLoading,
   showError,
   showSuccess,
@@ -33,9 +31,6 @@ const feedbackMessage = ref("");
 const selectedComplaintId = ref("");
 const filterDialogVisible = ref(false);
 const feedbackDialogVisible = ref(false);
-const statusDialogVisible = ref(false);
-const activeStatusItem = ref(null);
-const statusDraft = ref("pending");
 const searchTerm = ref("");
 const sortBy = ref("created_at");
 const sortDirection = ref("desc");
@@ -71,12 +66,6 @@ const sortByOptions = [
 const sortDirectionOptions = [
   { label: "Terbaru / Z-A", value: "desc" },
   { label: "Terlama / A-Z", value: "asc" },
-];
-
-const statusOptions = [
-  { label: "Menunggu", value: "pending" },
-  { label: "Diproses", value: "process" },
-  { label: "Selesai", value: "done" },
 ];
 
 const selectedDate = computed({
@@ -252,17 +241,6 @@ function openFeedbackDialog() {
   feedbackDialogVisible.value = true;
 }
 
-function openStatusDialog(item) {
-  activeStatusItem.value = item;
-  statusDraft.value = item.status;
-  statusDialogVisible.value = true;
-}
-
-function closeStatusDialog() {
-  statusDialogVisible.value = false;
-  activeStatusItem.value = null;
-}
-
 async function applyFilterAndClose() {
   await applyFilter();
   filterDialogVisible.value = false;
@@ -271,13 +249,6 @@ async function applyFilterAndClose() {
 async function submitFeedbackAndClose() {
   await submitFeedback();
   feedbackDialogVisible.value = false;
-}
-
-async function confirmStatusChange() {
-  if (!activeStatusItem.value) return;
-
-  await onChangeStatus(activeStatusItem.value, statusDraft.value);
-  closeStatusDialog();
 }
 
 async function applyFilter() {
@@ -392,44 +363,6 @@ async function exportCsv() {
 
     URL.revokeObjectURL(url);
     showSuccess("Export CSV berhasil diunduh.");
-  } catch (error) {
-    showError(error.message);
-  } finally {
-    closeLoading();
-  }
-}
-
-async function onChangeStatus(item, status) {
-  if (item.status === status) {
-    return;
-  }
-
-  if (item.status === "done" && status !== "done") {
-    const downgradeConfirmed = await confirmAction({
-      title: "Turunkan status dari selesai?",
-      message:
-        "Pengaduan sudah selesai. Pastikan ada alasan kuat sebelum mengubah kembali.",
-      okText: "Lanjutkan",
-      cancelText: "Batalkan",
-    });
-
-    if (!downgradeConfirmed) return;
-  }
-
-  const confirmed = await confirmAction({
-    title: "Update status?",
-    message: "Perubahan status akan langsung terlihat oleh siswa.",
-    okText: "Update",
-  });
-
-  if (!confirmed) return;
-
-  openLoading("Mengubah status...");
-
-  try {
-    await complaintStore.changeStatus({ complaintId: item.id, status });
-    await loadTable();
-    showSuccess("Status pengaduan diperbarui");
   } catch (error) {
     showError(error.message);
   } finally {
@@ -606,15 +539,6 @@ async function submitFeedback() {
               </td>
               <td class="px-3 py-3">
                 <div class="flex flex-wrap items-center gap-2">
-                  <Button
-                    outlined
-                    size="small"
-                    severity="secondary"
-                    label="Ubah Status"
-                    icon="pi pi-pen-to-square"
-                    @click="openStatusDialog(item)"
-                  />
-
                   <RouterLink
                     :to="`/admin/complaints/${item.id}`"
                     class="rounded-lg border border-blue-200 px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
@@ -846,48 +770,6 @@ async function submitFeedback() {
             label="Kirim"
             icon="pi pi-send"
             @click="submitFeedbackAndClose"
-          />
-        </div>
-      </template>
-    </Dialog>
-
-    <Dialog
-      v-model:visible="statusDialogVisible"
-      modal
-      header="Ubah Status Pengaduan"
-      :style="{ width: 'min(28rem, 96vw)' }"
-      @hide="closeStatusDialog"
-    >
-      <div class="space-y-3">
-        <p class="text-sm text-slate-600">
-          {{ activeStatusItem?.title || "Pengaduan" }}
-        </p>
-
-        <label class="space-y-2 text-sm">
-          <span class="text-slate-600">Pilih status baru</span>
-          <SelectButton
-            v-model="statusDraft"
-            :options="statusOptions"
-            option-label="label"
-            option-value="value"
-            class="modern-segment w-full"
-          />
-        </label>
-      </div>
-
-      <template #footer>
-        <div class="flex flex-wrap justify-end gap-2">
-          <Button
-            outlined
-            severity="secondary"
-            label="Batal"
-            @click="closeStatusDialog"
-          />
-          <Button
-            severity="primary"
-            label="Simpan"
-            icon="pi pi-save"
-            @click="confirmStatusChange"
           />
         </div>
       </template>

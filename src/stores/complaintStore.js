@@ -2,12 +2,14 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import {
   createComplaint,
+  deleteOwnComplaint,
   fetchAllComplaints,
   fetchAllComplaintsForExport,
   fetchAllComplaintsPaginated,
   fetchComplaintById,
   fetchMyComplaints,
-  updateComplaintStatus,
+  markComplaintAsDone,
+  updateOwnComplaint,
   uploadComplaintImage,
 } from "@/services/complaintService";
 
@@ -153,11 +155,11 @@ export const useComplaintStore = defineStore("complaints", () => {
     }
   }
 
-  async function changeStatus({ complaintId, status }) {
+  async function markAsDone({ complaintId }) {
     submitting.value = true;
 
     try {
-      const updated = await updateComplaintStatus({ complaintId, status });
+      const updated = await markComplaintAsDone({ complaintId });
       const idx = items.value.findIndex((item) => item.id === complaintId);
 
       if (idx !== -1) {
@@ -169,6 +171,54 @@ export const useComplaintStore = defineStore("complaints", () => {
       }
 
       return updated;
+    } finally {
+      submitting.value = false;
+    }
+  }
+
+  async function updateOwn({
+    complaintId,
+    userId,
+    title,
+    description,
+    category,
+  }) {
+    submitting.value = true;
+
+    try {
+      const updated = await updateOwnComplaint({
+        complaintId,
+        userId,
+        title,
+        description,
+        category,
+      });
+
+      const idx = items.value.findIndex((item) => item.id === complaintId);
+      if (idx !== -1) {
+        items.value[idx] = updated;
+      }
+
+      if (selected.value?.id === complaintId) {
+        selected.value = updated;
+      }
+
+      return updated;
+    } finally {
+      submitting.value = false;
+    }
+  }
+
+  async function removeOwn({ complaintId, userId }) {
+    submitting.value = true;
+
+    try {
+      await deleteOwnComplaint({ complaintId, userId });
+      items.value = items.value.filter((item) => item.id !== complaintId);
+
+      if (selected.value?.id === complaintId) {
+        selected.value = null;
+      }
     } finally {
       submitting.value = false;
     }
@@ -188,6 +238,8 @@ export const useComplaintStore = defineStore("complaints", () => {
     exportAllFiltered,
     submitComplaint,
     loadDetail,
-    changeStatus,
+    markAsDone,
+    updateOwn,
+    removeOwn,
   };
 });

@@ -4,7 +4,6 @@ import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import Select from "primevue/select";
 import Textarea from "primevue/textarea";
 import StatusBadge from "@/components/StatusBadge.vue";
 import { useComplaintStore } from "@/stores/complaintStore";
@@ -26,62 +25,41 @@ const { selected, loading, submitting } = storeToRefs(complaintStore);
 const { items: feedbacks } = storeToRefs(feedbackStore);
 
 const form = reactive({
-  status: "pending",
   message: "",
 });
 const imagePreviewVisible = ref(false);
 
-const statusOptions = [
-  { label: "Menunggu", value: "pending" },
-  { label: "Diproses", value: "process" },
-  { label: "Selesai", value: "done" },
-];
-
 onMounted(async () => {
   try {
-    const complaint = await complaintStore.loadDetail(route.params.id);
-    form.status = complaint.status;
+    await complaintStore.loadDetail(route.params.id);
     await feedbackStore.loadByComplaintId(route.params.id);
   } catch (error) {
     showError(error.message);
   }
 });
 
-async function handleSaveStatus() {
+async function handleMarkAsDone() {
   if (!selected.value) return;
 
-  if (selected.value.status === form.status) {
-    showSuccess("Status tidak berubah.");
+  if (selected.value.status === "done") {
+    showSuccess("Aspirasi ini sudah selesai.");
     return;
   }
 
-  if (selected.value.status === "done" && form.status !== "done") {
-    const downgradeConfirmed = await confirmAction({
-      title: "Turunkan status dari selesai?",
-      message:
-        "Pengaduan sudah ditandai selesai. Ubah kembali hanya jika memang perlu tindak lanjut ulang.",
-      okText: "Lanjutkan",
-      cancelText: "Batalkan",
-    });
-
-    if (!downgradeConfirmed) return;
-  }
-
   const confirmed = await confirmAction({
-    title: "Simpan perubahan status?",
-    message: "Status baru akan langsung terlihat oleh siswa.",
-    okText: "Simpan",
+    title: "Tandai aspirasi selesai?",
+    message: "Setelah selesai, progres baru tidak dapat ditambahkan.",
+    okText: "Tandai Selesai",
   });
 
   if (!confirmed) return;
 
-  openLoading("Menyimpan status...");
+  openLoading("Menandai selesai...");
   try {
-    await complaintStore.changeStatus({
+    await complaintStore.markAsDone({
       complaintId: route.params.id,
-      status: form.status,
     });
-    showSuccess("Status berhasil diperbarui.");
+    showSuccess("Aspirasi berhasil ditandai selesai.");
   } catch (error) {
     showError(error.message);
   } finally {
@@ -90,6 +68,11 @@ async function handleSaveStatus() {
 }
 
 async function handleSubmitFeedback() {
+  if (selected.value?.status === "done") {
+    showError("Aspirasi sudah selesai, progres baru tidak bisa ditambahkan.");
+    return;
+  }
+
   if (!form.message.trim()) {
     showError("Feedback tidak boleh kosong.");
     return;
@@ -171,24 +154,18 @@ function openImagePreview() {
           </span>
         </button>
 
-        <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
-          <label class="admin-input space-y-1 text-sm">
-            <span class="text-slate-600">Status perbaikan</span>
-            <Select
-              v-model="form.status"
-              :options="statusOptions"
-              option-label="label"
-              option-value="value"
-              fluid
-            />
-          </label>
-
+        <div class="flex flex-wrap items-center justify-end gap-2">
           <Button
-            severity="primary"
-            label="Simpan Status"
+            v-if="selected.status !== 'done'"
+            severity="success"
+            label="Tandai Selesai"
             :disabled="submitting"
-            @click="handleSaveStatus"
+            @click="handleMarkAsDone"
           />
+
+          <p v-else class="text-xs font-medium text-emerald-700">
+            Aspirasi selesai. Timeline progres telah ditutup.
+          </p>
         </div>
       </div>
     </article>
@@ -225,10 +202,12 @@ function openImagePreview() {
           rows="3"
           class="admin-input w-full"
           placeholder="Tuliskan perkembangan perbaikan fasilitas"
+          :disabled="selected?.status === 'done'"
         />
         <Button
           severity="primary"
           label="Kirim Feedback"
+          :disabled="selected?.status === 'done'"
           @click="handleSubmitFeedback"
         />
       </div>

@@ -86,11 +86,48 @@ for insert
 with check (auth.uid() = user_id or public.jwt_role() = 'admin');
 
 drop policy if exists complaints_update_admin_only on public.complaints;
-create policy complaints_update_admin_only
+drop policy if exists complaints_update_admin_or_owner_pending_no_feedback on public.complaints;
+create policy complaints_update_admin_or_owner_pending_no_feedback
 on public.complaints
 for update
-using (public.jwt_role() = 'admin')
-with check (public.jwt_role() = 'admin');
+using (
+  public.jwt_role() = 'admin'
+  or (
+    auth.uid() = user_id
+    and status = 'pending'
+    and not exists (
+      select 1
+      from public.feedbacks f
+      where f.complaint_id = complaints.id
+    )
+  )
+)
+with check (
+  public.jwt_role() = 'admin'
+  or (
+    auth.uid() = user_id
+    and status = 'pending'
+    and not exists (
+      select 1
+      from public.feedbacks f
+      where f.complaint_id = complaints.id
+    )
+  )
+);
+
+drop policy if exists complaints_delete_owner_pending_no_feedback on public.complaints;
+create policy complaints_delete_owner_pending_no_feedback
+on public.complaints
+for delete
+using (
+  auth.uid() = user_id
+  and status = 'pending'
+  and not exists (
+    select 1
+    from public.feedbacks f
+    where f.complaint_id = complaints.id
+  )
+);
 
 drop policy if exists feedbacks_select_own_or_admin on public.feedbacks;
 create policy feedbacks_select_own_or_admin

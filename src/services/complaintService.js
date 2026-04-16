@@ -90,6 +90,45 @@ function matchesComplaintSearch(item, searchTerm = "") {
   return keywords.every((keyword) => haystack.includes(keyword));
 }
 
+async function fetchComplaintMutationState(complaintId) {
+  const { data: complaint, error: complaintError } = await supabase
+    .from("complaints")
+    .select("id, user_id, status, image_path")
+    .eq("id", complaintId)
+    .single();
+
+  if (complaintError) throw complaintError;
+
+  const { data: feedbackRows, error: feedbackError } = await supabase
+    .from("feedbacks")
+    .select("id")
+    .eq("complaint_id", complaintId)
+    .limit(1);
+
+  if (feedbackError) throw feedbackError;
+
+  return {
+    ...complaint,
+    hasFeedback: Boolean(feedbackRows?.length),
+  };
+}
+
+function ensureStudentCanMutateComplaint(state, userId) {
+  if (!state || state.user_id !== userId) {
+    throw new Error("Aspirasi tidak ditemukan atau bukan milik Anda.");
+  }
+
+  if (state.status !== "pending") {
+    throw new Error("Aspirasi hanya dapat diubah saat masih menunggu.");
+  }
+
+  if (state.hasFeedback) {
+    throw new Error(
+      "Aspirasi tidak dapat diubah karena sudah mendapat progres dari admin.",
+    );
+  }
+}
+
 export async function uploadComplaintImage(file, userId) {
   if (!file) return null;
 
@@ -230,16 +269,75 @@ export async function fetchAllComplaintsForExport({
   return mappedItems.filter((item) => matchesComplaintSearch(item, searchTerm));
 }
 
-export async function updateComplaintStatus({ complaintId, status }) {
+export async function markComplaintAsDone({ complaintId }) {
+  const { data: snapshot, error: snapshotError } = await supabase
+    .from("complaints")
+    .select("id, status")
+    .eq("id", complaintId)
+    .single();
+
+  if (snapshotError) throw snapshotError;
+
+  if (snapshot.status === "done") {
+    throw new Error("Aspirasi ini sudah ditandai selesai.");
+  }
+
   const { data, error } = await supabase
     .from("complaints")
-    .update({ status })
+    .update({ status: "done" })
     .eq("id", complaintId)
     .select("*, users(name), feedbacks(id, message, created_at)")
     .single();
 
   if (error) throw error;
   return mapComplaint(data);
+}
+
+export async function updateOwnComplaint({
+  complaintId,
+  userId,
+  title,
+  description,
+  category,
+}) {
+  const mutationState = await fetchComplaintMutationState(complaintId);
+  ensureStudentCanMutateComplaint(mutationState, userId);
+
+  const updates = {
+    title,
+    description,
+    category,
+  };
+
+  const { data, error } = await supabase
+    .from("complaints")
+    .update(updates)
+    .eq("id", complaintId)
+    .select("*, users(name), feedbacks(id, message, created_at)")
+    .single();
+
+  if (error) throw error;
+  return mapComplaint(data);
+}
+
+export async function deleteOwnComplaint({ complaintId, userId }) {
+  const mutationState = await fetchComplaintMutationState(complaintId);
+  ensureStudentCanMutateComplaint(mutationState, userId);
+
+  if (mutationState.image_path) {
+    const { error: storageError } = await supabase.storage
+      .from("complaint-images")
+      .remove([mutationState.image_path]);
+
+    if (storageError) throw storageError;
+  }
+
+  const { error } = await supabase
+    .from("complaints")
+    .delete()
+    .eq("id", complaintId);
+
+  if (error) throw error;
 }
 
 export async function fetchComplaintById(complaintId) {

@@ -5,7 +5,7 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Textarea from "primevue/textarea";
-import vueFilePond from "vue-filepond";
+import vueFilePondModule from "vue-filepond";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -25,6 +25,7 @@ const authStore = useAuthStore();
 const complaintStore = useComplaintStore();
 const filePondRef = ref(null);
 const pondFiles = ref([]);
+const vueFilePond = vueFilePondModule.default || vueFilePondModule;
 const FilePond = vueFilePond(
   FilePondPluginImagePreview,
   FilePondPluginFileValidateType,
