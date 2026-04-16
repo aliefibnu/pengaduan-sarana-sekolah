@@ -323,13 +323,14 @@ async function handleDeleteComplaint() {
 
       <div v-if="timelineItems.length" class="mt-4 pl-1">
         <div class="relative pl-7">
-          <span class="absolute bottom-0 left-[11px] top-1 w-px bg-slate-200"></span>
+          <span
+            class="absolute bottom-0 left-[11px] top-1 w-px bg-slate-200"
+          ></span>
 
-          <div
-            v-if="latestTimelineProgress !== null"
-            class="relative pb-5"
-          >
-            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-600 bg-blue-600"></span>
+          <div v-if="latestTimelineProgress !== null" class="relative pb-5">
+            <span
+              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-600 bg-blue-600"
+            ></span>
             <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
               <div
                 class="mb-1 flex items-center justify-between text-xs font-semibold text-blue-700"
@@ -346,11 +347,10 @@ async function handleDeleteComplaint() {
             </div>
           </div>
 
-          <div
-            v-if="selected?.completed_at"
-            class="relative pb-5"
-          >
-            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-emerald-600 bg-emerald-600"></span>
+          <div v-if="selected?.completed_at" class="relative pb-5">
+            <span
+              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-emerald-600 bg-emerald-600"
+            ></span>
             <div
               class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs font-medium text-emerald-700"
             >
@@ -380,11 +380,10 @@ async function handleDeleteComplaint() {
             </div>
           </div>
 
-          <div
-            v-if="selected?.first_response_at"
-            class="relative"
-          >
-            <span class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-300 bg-white"></span>
+          <div v-if="selected?.first_response_at" class="relative">
+            <span
+              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-300 bg-white"
+            ></span>
             <div
               class="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs font-medium text-blue-700"
             >
@@ -394,9 +393,7 @@ async function handleDeleteComplaint() {
         </div>
       </div>
 
-      <p v-else class="mt-3 text-sm text-slate-500">
-        Belum ada kabar terbaru.
-      </p>
+      <p v-else class="mt-3 text-sm text-slate-500">Belum ada kabar terbaru.</p>
     </article>
 
     <Dialog

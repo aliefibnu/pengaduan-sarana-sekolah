@@ -94,7 +94,9 @@ const latestTimelineProgress = computed(() => {
       v-if="complaint.first_response_at"
       class="mt-3 w-full rounded-xl border border-blue-100 bg-blue-50 p-2"
     >
-      <p class="inline-flex items-center gap-1 text-xs font-medium text-blue-700">
+      <p
+        class="inline-flex items-center gap-1 text-xs font-medium text-blue-700"
+      >
         <Clock3 class="h-3.5 w-3.5" />
         Ditanggapi: {{ formatDate(complaint.first_response_at) }}
       </p>

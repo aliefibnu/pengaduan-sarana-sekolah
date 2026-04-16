@@ -108,9 +108,7 @@ onMounted(async () => {
         />
       </div>
 
-      <p v-else class="text-sm text-slate-500">
-        Belum ada aduan yang cocok.
-      </p>
+      <p v-else class="text-sm text-slate-500">Belum ada aduan yang cocok.</p>
     </div>
   </section>
 </template>
