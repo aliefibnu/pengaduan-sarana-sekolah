@@ -406,9 +406,6 @@ async function submitFeedback() {
   <section class="space-y-4">
     <article class="admin-panel p-5">
       <h3 class="text-lg font-semibold text-slate-900">Filter Pengaduan</h3>
-      <p class="mt-1 text-sm text-slate-500">
-        Gunakan filter untuk menemukan pengaduan sesuai kebutuhan.
-      </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <Button
@@ -633,15 +630,6 @@ async function submitFeedback() {
       </div>
     </article>
 
-    <article class="admin-panel p-5">
-      <Button
-        label="Buka Feedback"
-        severity="primary"
-        icon="pi pi-comments"
-        @click="openFeedbackDialog"
-      />
-    </article>
-
     <Dialog
       v-model:visible="filterDialogVisible"
       modal
@@ -754,61 +742,6 @@ async function submitFeedback() {
             label="Terapkan"
             icon="pi pi-check"
             @click="applyFilterAndClose"
-          />
-        </div>
-      </template>
-    </Dialog>
-
-    <Dialog
-      v-model:visible="feedbackDialogVisible"
-      modal
-      header="Kirim Feedback Admin"
-      :style="{ width: 'min(42rem, 96vw)' }"
-    >
-      <div class="grid gap-3">
-        <label class="admin-input space-y-1 text-sm">
-          <span class="text-slate-600">Pilih pengaduan</span>
-          <Select
-            v-model="selectedComplaintId"
-            :options="[
-              { label: 'Pilih pengaduan', value: '' },
-              ...items.map((item) => ({
-                label: `${item.title} - ${item.users?.name || '-'}`,
-                value: item.id,
-              })),
-            ]"
-            option-label="label"
-            option-value="value"
-            filter
-            filter-placeholder="Cari pengaduan"
-            fluid
-          />
-        </label>
-
-        <label class="admin-input space-y-1 text-sm">
-          <span class="text-slate-600">Pesan feedback</span>
-          <Textarea
-            v-model="feedbackMessage"
-            rows="4"
-            placeholder="Tuliskan progres perbaikan atau informasi tindak lanjut"
-            class="w-full"
-          />
-        </label>
-      </div>
-
-      <template #footer>
-        <div class="flex flex-wrap justify-end gap-2">
-          <Button
-            outlined
-            severity="secondary"
-            label="Tutup"
-            @click="feedbackDialogVisible = false"
-          />
-          <Button
-            severity="primary"
-            label="Kirim"
-            icon="pi pi-send"
-            @click="submitFeedbackAndClose"
           />
         </div>
       </template>

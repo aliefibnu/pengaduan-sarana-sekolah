@@ -393,10 +393,6 @@ function clearProgress() {
           @click="handleSubmitFeedback"
         />
       </div>
-
-      <p v-else class="mt-4 text-sm font-medium text-emerald-700">
-        Aspirasi sudah selesai. Form feedback dan persentase disembunyikan.
-      </p>
     </article>
 
     <Dialog
