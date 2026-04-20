@@ -1,6 +1,6 @@
 <script setup>
 import { reactive } from "vue";
-import { useRouter, RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
@@ -78,14 +78,5 @@ async function handleSubmit() {
 
       <Button type="submit" label="Masuk" class="w-full" />
     </form>
-
-    <p class="mt-5 text-center text-sm text-slate-400">
-      Belum punya akun?
-      <RouterLink
-        to="/register"
-        class="font-semibold text-blue-300 hover:text-blue-200"
-        >Daftar di sini</RouterLink
-      >
-    </p>
   </div>
 </template>

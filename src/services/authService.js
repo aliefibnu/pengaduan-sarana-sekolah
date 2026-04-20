@@ -19,45 +19,6 @@ function buildAuthEmail(identity) {
   return `${normalizedIdentity}@${AUTH_EMAIL_DOMAIN}`;
 }
 
-export async function registerWithAlias({
-  name,
-  identity,
-  password,
-  role = "siswa",
-}) {
-  const { data, error } = await supabase.auth.signUp({
-    email: buildAuthEmail(identity),
-    password,
-    options: {
-      data: {
-        name,
-        role,
-      },
-    },
-  });
-
-  if (error) throw error;
-
-  if (data.user) {
-    await upsertProfileFromUser(data.user);
-  }
-
-  // Jika email confirmation dimatikan di Supabase, session biasanya langsung tersedia.
-  if (data.session) {
-    return data;
-  }
-
-  // Fallback: coba login langsung agar user tidak perlu flow verifikasi dari UI.
-  try {
-    const loginResult = await loginWithAlias({ identity, password });
-    return loginResult;
-  } catch (error) {
-    throw new Error(
-      "Akun berhasil dibuat, tetapi login otomatis gagal. Nonaktifkan 'Confirm email' di Supabase Auth > Providers agar pengguna tidak perlu verifikasi email.",
-    );
-  }
-}
-
 export async function loginWithAlias({ identity, password }) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: buildAuthEmail(identity),

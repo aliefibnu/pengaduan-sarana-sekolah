@@ -5,7 +5,6 @@ import {
   loginWithAlias,
   logout,
   onAuthStateChange,
-  registerWithAlias,
 } from "@/services/authService";
 
 export const useAuthStore = defineStore("auth", () => {
@@ -60,17 +59,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function signUp(payload) {
-    loading.value = true;
-    try {
-      const data = await registerWithAlias(payload);
-      hydrateFromSession(data.session);
-      return data;
-    } finally {
-      loading.value = false;
-    }
-  }
-
   async function signOut() {
     loading.value = true;
     try {
@@ -97,7 +85,6 @@ export const useAuthStore = defineStore("auth", () => {
     isSiswa,
     initAuth,
     signIn,
-    signUp,
     signOut,
     $disposeAuth,
   };

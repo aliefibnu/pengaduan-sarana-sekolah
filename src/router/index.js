@@ -40,30 +40,6 @@ const router = createRouter({
       ],
     },
     {
-      path: "/register",
-      component: () => import("@/layouts/AuthLayout.vue"),
-      meta: {
-        guestOnly: true,
-        title: "Registrasi Siswa - Pengaduan Sarana Sekolah",
-        description:
-          "Daftarkan akun siswa menggunakan NISN untuk mulai mengirim pengaduan sarana sekolah.",
-        robots: "noindex, nofollow",
-      },
-      children: [
-        {
-          path: "",
-          name: "register",
-          component: () => import("@/pages/auth/RegisterPage.vue"),
-          meta: {
-            title: "Registrasi Siswa - Pengaduan Sarana Sekolah",
-            description:
-              "Daftarkan akun siswa menggunakan NISN untuk mulai mengirim pengaduan sarana sekolah.",
-            robots: "noindex, nofollow",
-          },
-        },
-      ],
-    },
-    {
       path: "/siswa",
       component: () => import("@/layouts/SiswaLayout.vue"),
       meta: {
@@ -163,6 +139,17 @@ const router = createRouter({
             title: "Detail Pengaduan Admin - Pengaduan Sarana Sekolah",
             description:
               "Halaman detail pengaduan untuk admin melihat kronologi, mengubah status, dan menambahkan feedback.",
+            robots: "noindex, nofollow",
+          },
+        },
+        {
+          path: "users",
+          name: "admin-users",
+          component: () => import("@/pages/admin/AdminUsersPage.vue"),
+          meta: {
+            title: "Manajemen User - Pengaduan Sarana Sekolah",
+            description:
+              "Kelola akun siswa dari dashboard admin, termasuk membuat, mengubah, dan menghapus akun.",
             robots: "noindex, nofollow",
           },
         },

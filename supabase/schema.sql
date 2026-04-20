@@ -64,10 +64,11 @@ for select
 using (auth.uid() = id or public.jwt_role() = 'admin');
 
 drop policy if exists users_upsert_self_or_admin on public.users;
-create policy users_upsert_self_or_admin
+drop policy if exists users_insert_admin_only on public.users;
+create policy users_insert_admin_only
 on public.users
 for insert
-with check (auth.uid() = id or public.jwt_role() = 'admin');
+with check (public.jwt_role() = 'admin');
 
 drop policy if exists users_update_self_or_admin on public.users;
 create policy users_update_self_or_admin

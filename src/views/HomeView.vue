@@ -78,12 +78,6 @@ const stats = [
               Masuk
               <ArrowRight class="h-4 w-4" />
             </RouterLink>
-            <RouterLink
-              to="/register"
-              class="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-            >
-              Daftar Siswa
-            </RouterLink>
           </div>
         </header>
 
@@ -116,13 +110,6 @@ const stats = [
             </div>
 
             <div class="flex flex-wrap gap-3">
-              <RouterLink
-                to="/register"
-                class="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300"
-              >
-                Mulai dari NISN
-                <ArrowRight class="h-4 w-4" />
-              </RouterLink>
               <RouterLink
                 to="/login"
                 class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"

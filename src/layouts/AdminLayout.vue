@@ -16,6 +16,7 @@ const authStore = useAuthStore();
 const menus = [
   { label: "Dashboard Admin", to: "/admin" },
   { label: "Manajemen Pengaduan", to: "/admin/complaints" },
+  { label: "Manajemen User", to: "/admin/users" },
 ];
 
 async function handleLogout() {
