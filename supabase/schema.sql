@@ -23,6 +23,13 @@ create table if not exists public.complaints (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_by uuid references public.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.feedbacks (
   id uuid primary key default gen_random_uuid(),
   complaint_id uuid not null references public.complaints(id) on delete cascade,
@@ -36,6 +43,8 @@ create index if not exists complaints_status_idx on public.complaints(status);
 create index if not exists complaints_category_idx on public.complaints(category);
 create index if not exists complaints_created_at_idx on public.complaints(created_at desc);
 create index if not exists feedbacks_complaint_id_idx on public.feedbacks(complaint_id);
+create unique index if not exists categories_name_unique_idx on public.categories(lower(name));
+create index if not exists categories_created_at_idx on public.categories(created_at desc);
 
 insert into storage.buckets (id, name, public)
 values ('complaint-images', 'complaint-images', true)
@@ -44,6 +53,7 @@ on conflict (id) do nothing;
 alter table public.users enable row level security;
 alter table public.complaints enable row level security;
 alter table public.feedbacks enable row level security;
+alter table public.categories enable row level security;
 
 create or replace function public.jwt_role()
 returns text
@@ -78,10 +88,17 @@ using (auth.uid() = id or public.jwt_role() = 'admin')
 with check (auth.uid() = id or public.jwt_role() = 'admin');
 
 drop policy if exists complaints_select_own_or_admin on public.complaints;
+drop policy if exists complaints_select_public on public.complaints;
 create policy complaints_select_own_or_admin
 on public.complaints
 for select
 using (auth.uid() = user_id or public.jwt_role() = 'admin');
+
+create policy complaints_select_public
+on public.complaints
+for select
+to public
+using (true);
 
 drop policy if exists complaints_insert_own_or_admin on public.complaints;
 create policy complaints_insert_own_or_admin
@@ -134,6 +151,7 @@ using (
 );
 
 drop policy if exists feedbacks_select_own_or_admin on public.feedbacks;
+drop policy if exists feedbacks_select_public on public.feedbacks;
 create policy feedbacks_select_own_or_admin
 on public.feedbacks
 for select
@@ -147,11 +165,50 @@ using (
   )
 );
 
+create policy feedbacks_select_public
+on public.feedbacks
+for select
+to public
+using (true);
+
 drop policy if exists feedbacks_insert_admin_only on public.feedbacks;
 create policy feedbacks_insert_admin_only
 on public.feedbacks
 for insert
 with check (public.jwt_role() = 'admin');
+
+drop policy if exists categories_select_public on public.categories;
+create policy categories_select_public
+on public.categories
+for select
+to public
+using (true);
+
+drop policy if exists categories_insert_authenticated on public.categories;
+create policy categories_insert_authenticated
+on public.categories
+for insert
+to authenticated
+with check (
+  name is not null
+  and char_length(trim(name)) > 0
+  and created_by = auth.uid()
+);
+
+drop policy if exists categories_update_admin_only on public.categories;
+create policy categories_update_admin_only
+on public.categories
+for update
+to authenticated
+using (public.jwt_role() = 'admin')
+with check (public.jwt_role() = 'admin');
+
+drop policy if exists categories_delete_admin_only on public.categories;
+create policy categories_delete_admin_only
+on public.categories
+for delete
+to authenticated
+using (public.jwt_role() = 'admin');
 
 -- Storage policies
 drop policy if exists "Public read complaint images" on storage.objects;
@@ -191,6 +248,16 @@ on conflict (id) do update set name = excluded.name, role = excluded.role;
 insert into public.users (id, name, role)
 select id, 'Siswa Contoh', 'siswa' from auth.users where email = 'siswa@sekolah.local'
 on conflict (id) do update set name = excluded.name, role = excluded.role;
+
+insert into public.categories (name)
+values
+  ('Kelas'),
+  ('Toilet'),
+  ('Laboratorium'),
+  ('Perpustakaan'),
+  ('Lapangan'),
+  ('Lainnya')
+on conflict do nothing;
 
 with siswa as (
   select id from public.users where role = 'siswa' order by created_at asc limit 1

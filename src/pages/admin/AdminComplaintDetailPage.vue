@@ -1,412 +1,292 @@
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { storeToRefs } from "pinia";
 import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import InputNumber from "primevue/inputnumber";
 import Slider from "primevue/slider";
 import Textarea from "primevue/textarea";
-import StatusBadge from "@/components/StatusBadge.vue";
-import { useComplaintStore } from "@/stores/complaintStore";
-import { useFeedbackStore } from "@/stores/feedbackStore";
+import DataTable from "@/components/DataTable.vue";
+import { fetchComplaintById } from "@/services/complaintService";
+import {
+  fetchFeedbackByComplaintId,
+  createFeedback,
+} from "@/services/feedbackService";
 import { formatDate } from "@/utils/format";
 import {
   closeLoading,
-  confirmAction,
   openLoading,
   showError,
   showSuccess,
 } from "@/utils/notifications";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  AlertCircle,
+  MessageSquare,
+  Calendar,
+  TrendingUp,
+} from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
-const complaintStore = useComplaintStore();
-const feedbackStore = useFeedbackStore();
-const { selected, loading, submitting } = storeToRefs(complaintStore);
-const { items: feedbacks } = storeToRefs(feedbackStore);
-
-const form = reactive({
-  message: "",
-  progress_percentage: null,
-});
+const loading = ref(false);
+const submitting = ref(false);
+const selected = ref(null);
+const feedbacks = ref([]);
 const imagePreviewVisible = ref(false);
+const newFeedback = reactive({ message: "", progress_percentage: 0 });
 
-const latestFeedbackWithProgress = computed(() => {
-  return (
-    feedbacks.value.find(
-      (item) =>
-        item.progress_percentage !== null &&
-        item.progress_percentage !== undefined,
-    ) || null
+const feedbackColumns = [
+  { key: "message", label: "Pesan", icon: MessageSquare, sortable: false },
+  {
+    key: "progress_percentage",
+    label: "Progres",
+    icon: TrendingUp,
+    sortable: false,
+  },
+  { key: "created_at", label: "Tanggal", icon: Calendar, sortable: false },
+];
+
+const timelineItems = computed(() => {
+  return [...feedbacks.value].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
   );
 });
 
-const minProgress = computed(() => {
-  return latestFeedbackWithProgress.value?.progress_percentage ?? 0;
-});
-
 const latestTimelineProgress = computed(() => {
-  if (selected.value?.status === "done") return 100;
-
-  const latestFeedback = feedbacks.value[0];
-  if (!latestFeedback) return null;
-
-  const value = latestFeedback.progress_percentage;
-  return value === null || value === undefined ? null : value;
+  const item = feedbacks.value.find((f) => f.progress_percentage !== null);
+  return item?.progress_percentage ?? null;
 });
 
-const progressSliderModel = computed({
-  get() {
-    return form.progress_percentage ?? minProgress.value;
-  },
-  set(value) {
-    form.progress_percentage = value;
-  },
-});
-
-watch(minProgress, (value) => {
-  if (
-    form.progress_percentage !== null &&
-    form.progress_percentage !== undefined &&
-    form.progress_percentage < value
-  ) {
-    form.progress_percentage = value;
-  }
-});
-
-onMounted(async () => {
+async function loadData() {
+  loading.value = true;
   try {
-    await complaintStore.loadDetail(route.params.id);
-    await feedbackStore.loadByComplaintId(route.params.id);
-  } catch (error) {
-    showError(error.message);
-  }
-});
-
-async function handleMarkAsDone() {
-  if (!selected.value) return;
-
-  if (selected.value.status === "done") {
-    showSuccess("Aspirasi ini sudah selesai.");
-    return;
-  }
-
-  const confirmed = await confirmAction({
-    title: "Tandai aspirasi selesai?",
-    message: "Setelah selesai, aduan ini ditutup.",
-    okText: "Tandai Selesai",
-  });
-
-  if (!confirmed) return;
-
-  openLoading("Menandai selesai...");
-  try {
-    await complaintStore.markAsDone({
-      complaintId: route.params.id,
-    });
-    showSuccess("Aspirasi berhasil ditandai selesai.");
+    const [complaintData, feedbackData] = await Promise.all([
+      fetchComplaintById(route.params.id),
+      fetchFeedbackByComplaintId(route.params.id),
+    ]);
+    selected.value = complaintData;
+    feedbacks.value = feedbackData;
   } catch (error) {
     showError(error.message);
   } finally {
-    closeLoading();
+    loading.value = false;
   }
 }
 
-async function handleSubmitFeedback() {
-  if (selected.value?.status === "done") {
-    showError("Aspirasi ini sudah selesai.");
+async function handleAddFeedback() {
+  if (!newFeedback.message.trim()) {
+    showError("Pesan feedback wajib diisi.");
     return;
   }
 
-  if (!form.message.trim()) {
-    showError("Feedback tidak boleh kosong.");
-    return;
-  }
-
-  if (
-    form.progress_percentage !== null &&
-    form.progress_percentage !== undefined &&
-    form.progress_percentage < minProgress.value
-  ) {
-    showError(
-      `Persentase tidak boleh lebih kecil dari progres terakhir (${minProgress.value}%).`,
-    );
-    return;
-  }
-
-  openLoading("Mengirim feedback...");
+  submitting.value = true;
+  openLoading("Menambahkan feedback...");
   try {
-    await feedbackStore.addFeedback({
+    await createFeedback({
       complaint_id: route.params.id,
-      message: form.message.trim(),
-      progress_percentage: form.progress_percentage,
+      message: newFeedback.message,
+      progress_percentage: newFeedback.progress_percentage,
     });
-
-    form.message = "";
-    form.progress_percentage = null;
-    await complaintStore.loadDetail(route.params.id);
-    await feedbackStore.loadByComplaintId(route.params.id);
-    showSuccess("Feedback berhasil dikirim.");
+    showSuccess("Feedback berhasil ditambahkan.");
+    newFeedback.message = "";
+    newFeedback.progress_percentage = 0;
+    await loadData();
   } catch (error) {
     showError(error.message);
   } finally {
+    submitting.value = false;
     closeLoading();
   }
 }
 
 function openImagePreview() {
-  if (!selected.value?.image_url) return;
   imagePreviewVisible.value = true;
 }
 
-function increaseProgress() {
-  const current = form.progress_percentage ?? minProgress.value;
-  form.progress_percentage = Math.min(100, current + 1);
-}
-
-function decreaseProgress() {
-  const current = form.progress_percentage ?? minProgress.value;
-  form.progress_percentage = Math.max(minProgress.value, current - 1);
-}
-
-function clearProgress() {
-  form.progress_percentage = null;
-}
+onMounted(loadData);
 </script>
 
 <template>
-  <section class="space-y-4">
-    <article class="admin-panel p-5">
-      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 class="text-lg font-semibold text-slate-900">Detail Pengaduan</h3>
-        <Button
-          outlined
-          severity="secondary"
-          size="small"
-          label="Kembali ke daftar"
-          icon="pi pi-arrow-left"
-          @click="router.push('/admin/complaints')"
-        />
+  <section class="space-y-6">
+    <div class="flex items-center gap-3">
+      <button
+        @click="router.push('/admin/complaints')"
+        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+      >
+        <ArrowLeft :size="18" />
+        Kembali
+      </button>
+    </div>
+
+    <article class="rounded-lg border border-slate-300 bg-white shadow-sm">
+      <div
+        class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
+      >
+        <h1 class="flex items-center gap-2 text-2xl font-bold text-slate-900">
+          <AlertCircle :size="24" class="text-teal-600" />
+          {{ selected?.title || "Loading..." }}
+        </h1>
       </div>
 
-      <p v-if="loading" class="text-sm text-slate-500">
+      <div v-if="loading" class="px-6 py-8 text-center text-slate-500">
         Memuat detail pengaduan...
-      </p>
+      </div>
 
-      <div v-else-if="selected" class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h4 class="text-base font-semibold text-slate-900">
-            {{ selected.title }}
-          </h4>
-          <StatusBadge :status="selected.status" />
+      <div v-else-if="selected" class="space-y-4 px-6 py-6">
+        <div class="flex items-center justify-between">
+          <div class="space-y-1">
+            <p class="text-xs text-slate-600">
+              <strong>Dibuat:</strong> {{ formatDate(selected.created_at) }}
+            </p>
+            <p class="text-xs text-slate-600">
+              <strong>Kategori:</strong> {{ selected.category }}
+            </p>
+          </div>
+          <span
+            class="inline-flex items-center gap-2 rounded-full border px-4 py-2 font-semibold"
+            :class="{
+              'border-yellow-300 bg-yellow-50 text-yellow-700':
+                selected.status === 'pending',
+              'border-blue-300 bg-blue-50 text-blue-700':
+                selected.status === 'process',
+              'border-green-300 bg-green-50 text-green-700':
+                selected.status === 'done',
+            }"
+          >
+            <component
+              :is="selected.status === 'done' ? CheckCircle2 : AlertCircle"
+              :size="18"
+            />
+            {{
+              selected.status === "pending"
+                ? "Menunggu"
+                : selected.status === "process"
+                  ? "Diproses"
+                  : "Selesai"
+            }}
+          </span>
         </div>
 
-        <p class="text-xs text-slate-500">
-          Pelapor: {{ selected.users?.name || "-" }} • {{ selected.category }} •
-          {{ formatDate(selected.created_at) }}
-        </p>
-
-        <p class="text-sm leading-relaxed text-slate-700">
+        <p
+          class="border-t border-slate-200 pt-4 text-sm leading-relaxed text-slate-700"
+        >
           {{ selected.description }}
         </p>
 
-        <button
+        <img
           v-if="selected.image_url"
-          type="button"
-          class="group w-full overflow-hidden rounded-2xl"
-          @click="openImagePreview"
-        >
-          <img
-            :src="selected.image_url"
-            alt="Bukti pengaduan"
-            class="max-h-80 w-full rounded-2xl object-cover transition group-hover:scale-[1.01]"
-          />
-          <span
-            class="mt-2 inline-flex text-xs font-medium text-blue-700 group-hover:text-blue-800"
-          >
-            Klik foto untuk perbesar
-          </span>
-        </button>
-
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <Button
-            v-if="selected.status !== 'done'"
-            severity="success"
-            label="Tandai Selesai"
-            icon="pi pi-check-circle"
-            :disabled="submitting"
-            @click="handleMarkAsDone"
-          />
-
-          <p v-else class="text-xs font-medium text-emerald-700">
-            Aspirasi selesai. Timeline progres telah ditutup.
-          </p>
-        </div>
+          :src="selected.image_url"
+          alt="Bukti"
+          class="max-h-64 w-full rounded-lg border border-slate-300 object-cover"
+        />
       </div>
     </article>
 
-    <article class="admin-panel p-5">
-      <h3 class="text-lg font-semibold text-slate-900">
-        Timeline Feedback Admin
-      </h3>
-
-      <div class="mt-4 space-y-3">
-        <div
-          v-if="latestTimelineProgress !== null"
-          class="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-3"
-        >
-          <div
-            class="flex items-center justify-between text-xs font-medium text-blue-700"
-          >
-            <span>Progres</span>
-            <span>{{ latestTimelineProgress }}%</span>
-          </div>
-          <div class="h-2 rounded-full bg-blue-100">
-            <div
-              class="h-2 rounded-full bg-blue-600 transition-all"
-              :style="{ width: `${latestTimelineProgress}%` }"
-            ></div>
-          </div>
-        </div>
-
-        <div
-          v-if="selected?.completed_at"
-          class="rounded-xl border border-emerald-100 bg-emerald-50 p-3"
-        >
-          <p class="text-xs font-medium text-emerald-700">
-            Selesai: {{ formatDate(selected.completed_at) }}
+    <div
+      v-if="latestTimelineProgress !== null"
+      class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+    >
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-blue-900">Progres Penanganan</p>
+          <p class="text-2xl font-bold text-blue-600">
+            {{ latestTimelineProgress }}%
           </p>
         </div>
+        <div class="flex-1">
+          <div class="h-3 rounded-full bg-blue-100">
+            <div
+              class="h-3 rounded-full bg-blue-600 transition-all"
+              :style="{ width: `${latestTimelineProgress}%` }"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <div
-          v-for="item in feedbacks"
-          :key="item.id"
-          class="rounded-xl border border-slate-200 bg-slate-50 p-3"
+    <article class="rounded-lg border border-slate-300 bg-white shadow-sm">
+      <div
+        class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
+      >
+        <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <MessageSquare :size="24" class="text-teal-600" />
+          Riwayat Feedback
+        </h2>
+      </div>
+
+      <div class="overflow-x-auto">
+        <DataTable
+          :columns="feedbackColumns"
+          :items="timelineItems"
+          :page-size="10"
         >
-          <div class="flex items-start justify-between gap-2">
-            <p class="text-sm text-slate-700">{{ item.message }}</p>
+          <template #cell-message="{ item }">
+            <p class="text-sm text-slate-800">{{ item.message }}</p>
+          </template>
+
+          <template #cell-progress_percentage="{ item }">
             <div
               v-if="item.progress_percentage !== null"
-              class="whitespace-nowrap rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700"
+              class="flex items-center gap-2"
             >
-              {{ item.progress_percentage }}%
+              <div class="w-16 rounded-full bg-slate-100">
+                <div
+                  class="h-1.5 rounded-full bg-teal-600"
+                  :style="{ width: `${item.progress_percentage}%` }"
+                />
+              </div>
+              <span
+                class="whitespace-nowrap rounded-full bg-teal-100 px-2.5 py-0.5 text-sm font-bold text-teal-700"
+              >
+                {{ item.progress_percentage }}%
+              </span>
             </div>
-          </div>
-          <p class="mt-1 text-xs text-slate-500">
-            {{ formatDate(item.created_at) }}
-          </p>
-        </div>
+            <span v-else class="text-xs text-slate-500">-</span>
+          </template>
 
-        <p v-if="!feedbacks.length" class="text-sm text-slate-500">
-          Belum ada feedback pada pengaduan ini.
-        </p>
-
-        <p
-          v-if="selected?.first_response_at"
-          class="text-xs font-medium text-blue-700"
-        >
-          Direspon: {{ formatDate(selected.first_response_at) }}
-        </p>
+          <template #cell-created_at="{ item }">
+            <span class="text-sm text-slate-700">{{
+              formatDate(item.created_at)
+            }}</span>
+          </template>
+        </DataTable>
       </div>
 
-      <div v-if="selected?.status !== 'done'" class="mt-4 space-y-3">
-        <label class="text-sm font-medium text-slate-700" for="feedback-input">
-          Tambah feedback baru
-        </label>
-        <Textarea
-          id="feedback-input"
-          v-model="form.message"
-          rows="3"
-          class="admin-input w-full"
-          placeholder="Tuliskan perkembangan perbaikan fasilitas"
-          :disabled="selected?.status === 'done'"
-        />
-        <label class="text-sm font-medium text-slate-700" for="progress-input">
-          Persentase progres (opsional)
-        </label>
-        <p class="text-xs text-slate-500">
-          Progres minimal: {{ minProgress }}%
-        </p>
-        <div class="space-y-2">
-          <Slider
-            v-model="progressSliderModel"
-            :min="minProgress"
-            :max="100"
-            :step="1"
-            :disabled="selected?.status === 'done'"
-            class="w-full"
-          />
-          <div class="flex flex-wrap items-center gap-2">
-            <Button
-              size="small"
-              outlined
-              severity="secondary"
-              icon="pi pi-minus"
-              :disabled="
-                selected?.status === 'done' ||
-                progressSliderModel <= minProgress
-              "
-              @click="decreaseProgress"
+      <div class="border-t border-slate-200 px-6 py-6">
+        <h3 class="mb-4 font-semibold text-slate-900">Tambah Feedback Baru</h3>
+        <form class="space-y-4" @submit.prevent="handleAddFeedback">
+          <label class="space-y-2">
+            <span class="text-sm font-semibold text-slate-900">Pesan</span>
+            <Textarea
+              v-model="newFeedback.message"
+              rows="3"
+              class="w-full"
+              placeholder="Tuliskan feedback atau update penanganan"
             />
-            <InputNumber
-              id="progress-input"
-              v-model="form.progress_percentage"
-              input-id="progress-number"
-              :min="minProgress"
+          </label>
+
+          <label class="space-y-2">
+            <span class="text-sm font-semibold text-slate-900"
+              >Progres Penanganan (%):
+              {{ newFeedback.progress_percentage }}</span
+            >
+            <Slider
+              v-model="newFeedback.progress_percentage"
+              :min="0"
               :max="100"
-              suffix="%"
-              :use-grouping="false"
-              show-buttons
-              button-layout="horizontal"
-              increment-button-icon="pi pi-plus"
-              decrement-button-icon="pi pi-minus"
-              placeholder="Kosongkan jika tidak diisi"
-              :disabled="selected?.status === 'done'"
+              class="w-full"
             />
+          </label>
+
+          <div class="flex justify-end gap-2">
             <Button
-              size="small"
-              outlined
-              severity="secondary"
-              icon="pi pi-plus"
-              :disabled="
-                selected?.status === 'done' || progressSliderModel >= 100
-              "
-              @click="increaseProgress"
-            />
-            <Button
-              size="small"
-              text
-              severity="secondary"
-              label="Kosongkan"
-              icon="pi pi-times"
-              :disabled="selected?.status === 'done'"
-              @click="clearProgress"
+              type="submit"
+              label="Kirim Feedback"
+              :loading="submitting"
             />
           </div>
-        </div>
-        <Button
-          severity="primary"
-          label="Kirim Feedback"
-          icon="pi pi-send"
-          :disabled="submitting"
-          @click="handleSubmitFeedback"
-        />
+        </form>
       </div>
     </article>
-
-    <Dialog
-      v-model:visible="imagePreviewVisible"
-      modal
-      header="Preview Bukti Pengaduan"
-      :style="{ width: 'min(64rem, 96vw)' }"
-    >
-      <img
-        v-if="selected?.image_url"
-        :src="selected.image_url"
-        alt="Bukti pengaduan"
-        class="max-h-[78vh] w-full rounded-xl object-contain"
-      />
-    </Dialog>
   </section>
 </template>

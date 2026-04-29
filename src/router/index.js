@@ -16,6 +16,16 @@ const router = createRouter({
       },
     },
     {
+      path: "/complaints/:id",
+      name: "public-complaint-detail",
+      component: () => import("@/pages/public/PublicComplaintDetailPage.vue"),
+      meta: {
+        title: "Detail Aduan - Pengaduan Sarana Sekolah",
+        description:
+          "Lihat detail aduan sarana sekolah secara read-only lengkap dengan status dan riwayat penanganan.",
+      },
+    },
+    {
       path: "/login",
       component: () => import("@/layouts/AuthLayout.vue"),
       meta: {
@@ -150,6 +160,17 @@ const router = createRouter({
             title: "Manajemen User - Pengaduan Sarana Sekolah",
             description:
               "Kelola akun siswa dari dashboard admin, termasuk membuat, mengubah, dan menghapus akun.",
+            robots: "noindex, nofollow",
+          },
+        },
+        {
+          path: "categories",
+          name: "admin-categories",
+          component: () => import("@/pages/admin/AdminCategoriesPage.vue"),
+          meta: {
+            title: "Manajemen Kategori - Pengaduan Sarana Sekolah",
+            description:
+              "Kelola kategori aduan agar pilihan kategori tetap relevan untuk siswa dan admin.",
             robots: "noindex, nofollow",
           },
         },

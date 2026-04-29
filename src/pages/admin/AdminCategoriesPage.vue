@@ -1,16 +1,12 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import { storeToRefs } from "pinia";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import Password from "primevue/password";
 import DataTable from "@/components/DataTable.vue";
-import {
-  fetchUsers,
-  createSiswaUserByAdmin,
-  updateUser,
-  deleteUserByAdmin,
-} from "@/services/userService";
+import { useAuthStore } from "@/stores/authStore";
+import { useCategoryStore } from "@/stores/categoryStore";
 import {
   closeLoading,
   confirmAction,
@@ -19,148 +15,151 @@ import {
   showSuccess,
 } from "@/utils/notifications";
 import { formatDate } from "@/utils/format";
-import { Users, Plus, Edit2, Trash2 } from "lucide-vue-next";
+import { Tag, Plus, Edit2, Trash2 } from "lucide-vue-next";
 
-const users = ref([]);
-const loading = ref(false);
+const authStore = useAuthStore();
+const categoryStore = useCategoryStore();
+const { items, loading, submitting } = storeToRefs(categoryStore);
+
+const keyword = ref("");
 const createDialogVisible = ref(false);
 const editDialogVisible = ref(false);
-const submitting = ref(false);
-const activeUserId = ref("");
+const activeCategoryId = ref("");
 
 const columns = [
-  { key: "name", label: "Nama Siswa", icon: Users, sortable: true },
-  { key: "role", label: "Role", icon: null, sortable: true },
+  { key: "name", label: "Nama Kategori", icon: Tag, sortable: true },
   { key: "created_at", label: "Dibuat", icon: null, sortable: true },
   { key: "actions", label: "Aksi", icon: null, sortable: false },
 ];
 
-const createForm = reactive({ name: "", nis: "", password: "" });
-const editForm = reactive({ name: "", nis: "", password: "" });
+const createForm = reactive({
+  name: "",
+});
 
-async function loadUsers() {
-  loading.value = true;
-  try {
-    users.value = await fetchUsers();
-  } catch (error) {
-    showError(error.message);
-  } finally {
-    loading.value = false;
+const editForm = reactive({
+  name: "",
+});
+
+const filteredItems = computed(() => {
+  const q = keyword.value.trim().toLowerCase();
+
+  if (!q) {
+    return items.value;
   }
+
+  return items.value.filter((item) => item.name.toLowerCase().includes(q));
+});
+
+function resetCreateForm() {
+  createForm.name = "";
 }
 
 function openCreateDialog() {
-  createForm.name = "";
-  createForm.nis = "";
-  createForm.password = "";
+  resetCreateForm();
   createDialogVisible.value = true;
 }
 
-function openEditDialog(user) {
-  activeUserId.value = user.id;
-  editForm.name = user.name;
-  editForm.nis = user.nis;
-  editForm.password = "";
+function openEditDialog(item) {
+  activeCategoryId.value = item.id;
+  editForm.name = item.name;
   editDialogVisible.value = true;
 }
 
-async function handleCreateUser() {
-  if (
-    !createForm.name.trim() ||
-    !createForm.nis.trim() ||
-    !createForm.password.trim()
-  ) {
-    showError("Semua field wajib diisi.");
+async function loadCategories() {
+  try {
+    await categoryStore.loadAll();
+  } catch (error) {
+    showError(error.message);
+  }
+}
+
+async function handleCreateCategory() {
+  if (!authStore.user?.id) return;
+
+  if (!createForm.name.trim()) {
+    showError("Nama kategori wajib diisi.");
     return;
   }
 
-  submitting.value = true;
-  openLoading("Menambahkan user...");
+  openLoading("Menambahkan kategori...");
   try {
-    await createSiswaUserByAdmin({
+    await categoryStore.add({
       name: createForm.name,
-      identity: createForm.nis,
-      password: createForm.password,
+      createdBy: authStore.user.id,
     });
     createDialogVisible.value = false;
-    createForm.name = "";
-    createForm.nis = "";
-    createForm.password = "";
-    showSuccess("User berhasil ditambahkan.");
-    await loadUsers();
+    showSuccess("Kategori berhasil ditambahkan.");
   } catch (error) {
     showError(error.message);
   } finally {
-    submitting.value = false;
     closeLoading();
   }
 }
 
-async function handleUpdateUser() {
+async function handleUpdateCategory() {
+  if (!activeCategoryId.value) return;
+
   if (!editForm.name.trim()) {
-    showError("Nama wajib diisi.");
+    showError("Nama kategori wajib diisi.");
     return;
   }
 
-  submitting.value = true;
-  openLoading("Menyimpan perubahan...");
+  openLoading("Menyimpan perubahan kategori...");
   try {
-    await updateUser(activeUserId.value, {
+    await categoryStore.update({
+      id: activeCategoryId.value,
       name: editForm.name,
-      password: editForm.password || undefined,
     });
     editDialogVisible.value = false;
-    showSuccess("User berhasil diperbarui.");
-    await loadUsers();
+    showSuccess("Kategori berhasil diperbarui.");
   } catch (error) {
     showError(error.message);
   } finally {
-    submitting.value = false;
     closeLoading();
   }
 }
 
-async function handleDeleteUser(user) {
+async function handleDeleteCategory(item) {
   const confirmed = await confirmAction({
-    title: "Hapus user?",
-    message: `User ${user.name} akan dihapus dari sistem.`,
+    title: "Hapus kategori ini?",
+    message: `Kategori "${item.name}" akan dihapus dari daftar pilihan kategori.`,
     okText: "Hapus",
     cancelText: "Batal",
   });
 
   if (!confirmed) return;
 
-  submitting.value = true;
-  openLoading("Menghapus user...");
+  openLoading("Menghapus kategori...");
   try {
-    await deleteUserByAdmin(user.id);
-    showSuccess("User berhasil dihapus.");
-    await loadUsers();
+    await categoryStore.remove(item.id);
+    showSuccess("Kategori berhasil dihapus.");
   } catch (error) {
     showError(error.message);
   } finally {
-    submitting.value = false;
     closeLoading();
   }
 }
 
-onMounted(loadUsers);
+onMounted(loadCategories);
 </script>
 
 <template>
   <section class="space-y-6">
+    <!-- Header & Actions -->
     <div
       class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
     >
       <div class="space-y-1">
         <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-          <Users :size="28" class="text-teal-600" />
-          Manajemen User Siswa
+          <Tag :size="28" class="text-teal-600" />
+          Manajemen Kategori
         </h1>
-        <p class="text-sm text-slate-600">Kelola akun siswa dan izin akses</p>
+        <p class="text-sm text-slate-600">
+          Kelola kategori pengaduan agar pilihan siswa dan admin selalu relevan
+        </p>
       </div>
       <Button
-        label="Tambah User"
+        label="Tambah Kategori"
         icon="pi pi-plus"
         :loading="submitting"
         @click="openCreateDialog"
@@ -168,30 +167,33 @@ onMounted(loadUsers);
       />
     </div>
 
+    <!-- Search Bar -->
+    <div>
+      <InputText
+        v-model="keyword"
+        class="w-full rounded-lg border border-slate-300 px-4 py-2.5 placeholder-slate-500 md:w-96"
+        placeholder="🔍 Cari nama kategori"
+      />
+    </div>
+
+    <!-- Data Table -->
     <div
       class="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm"
     >
       <div class="overflow-x-auto">
         <DataTable
           :columns="columns"
-          :items="users"
+          :items="filteredItems"
           :loading="loading"
-          empty-title="Belum ada user"
-          empty-message="Mulai dengan menambahkan user pertama"
+          empty-title="Belum ada kategori"
+          empty-message="Mulai dengan menambahkan kategori pertama"
+          @empty-action="openCreateDialog"
         >
           <template #cell-name="{ item }">
-            <div class="space-y-0.5">
-              <p class="font-semibold text-slate-900">{{ item.name }}</p>
-              <p class="font-mono text-xs text-slate-600">{{ item.nis }}</p>
+            <div class="flex items-center gap-2">
+              <Tag :size="16" class="text-teal-600" />
+              <span class="font-semibold text-slate-900">{{ item.name }}</span>
             </div>
-          </template>
-
-          <template #cell-role="{ item }">
-            <span
-              class="inline-block rounded-full border border-blue-200 bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800"
-            >
-              {{ item.role || "siswa" }}
-            </span>
           </template>
 
           <template #cell-created_at="{ item }">
@@ -211,7 +213,7 @@ onMounted(loadUsers);
                 Edit
               </button>
               <button
-                @click="handleDeleteUser(item)"
+                @click="handleDeleteCategory(item)"
                 :disabled="submitting"
                 class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
               >
@@ -224,41 +226,25 @@ onMounted(loadUsers);
       </div>
     </div>
 
+    <!-- Create Dialog -->
     <Dialog
       v-model:visible="createDialogVisible"
       modal
-      header="Tambah User Siswa"
+      header="Tambah Kategori Baru"
       :style="{ width: 'min(28rem, 94vw)' }"
     >
-      <form class="space-y-4" @submit.prevent="handleCreateUser">
+      <form class="space-y-4" @submit.prevent="handleCreateCategory">
         <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900">Nama Siswa</span>
+          <div class="flex items-center gap-2">
+            <Tag :size="18" class="text-teal-600" />
+            <span class="font-semibold text-slate-900">Nama Kategori</span>
+            <span class="text-red-500">*</span>
+          </div>
           <InputText
             v-model="createForm.name"
             class="w-full"
             required
-            placeholder="Contoh: Ahmad Ridho"
-          />
-        </label>
-
-        <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900">NIS</span>
-          <InputText
-            v-model="createForm.nis"
-            class="w-full"
-            required
-            placeholder="Contoh: 123456"
-          />
-        </label>
-
-        <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900">Password</span>
-          <Password
-            v-model="createForm.password"
-            toggle-mask
-            :feedback="false"
-            class="w-full"
-            required
+            placeholder="Contoh: Aula, Kantin, Kamar Mandi"
           />
         </label>
 
@@ -275,27 +261,25 @@ onMounted(loadUsers);
       </form>
     </Dialog>
 
+    <!-- Edit Dialog -->
     <Dialog
       v-model:visible="editDialogVisible"
       modal
-      header="Edit User Siswa"
+      header="Ubah Kategori"
       :style="{ width: 'min(28rem, 94vw)' }"
     >
-      <form class="space-y-4" @submit.prevent="handleUpdateUser">
+      <form class="space-y-4" @submit.prevent="handleUpdateCategory">
         <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900">Nama Siswa</span>
-          <InputText v-model="editForm.name" class="w-full" required />
-        </label>
-
-        <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900"
-            >Password Baru (kosongkan jika tidak diubah)</span
-          >
-          <Password
-            v-model="editForm.password"
-            toggle-mask
-            :feedback="false"
+          <div class="flex items-center gap-2">
+            <Tag :size="18" class="text-teal-600" />
+            <span class="font-semibold text-slate-900">Nama Kategori</span>
+            <span class="text-red-500">*</span>
+          </div>
+          <InputText
+            v-model="editForm.name"
             class="w-full"
+            required
+            placeholder="Contoh: Aula, Kantin, Kamar Mandi"
           />
         </label>
 

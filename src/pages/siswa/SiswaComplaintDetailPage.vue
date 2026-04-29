@@ -6,9 +6,10 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import StatusBadge from "@/components/StatusBadge.vue";
 import Textarea from "primevue/textarea";
+import DataTable from "@/components/DataTable.vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useCategoryStore } from "@/stores/categoryStore";
 import { useComplaintStore } from "@/stores/complaintStore";
 import { useFeedbackStore } from "@/stores/feedbackStore";
 import { formatDate } from "@/utils/format";
@@ -19,10 +20,22 @@ import {
   showError,
   showSuccess,
 } from "@/utils/notifications";
+import {
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  MessageSquare,
+  Calendar,
+  TrendingUp,
+  Image,
+} from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const categoryStore = useCategoryStore();
 const complaintStore = useComplaintStore();
 const feedbackStore = useFeedbackStore();
 const { selected, loading, submitting } = storeToRefs(complaintStore);
@@ -30,19 +43,27 @@ const { items: feedbacks } = storeToRefs(feedbackStore);
 const imagePreviewVisible = ref(false);
 const isEditing = ref(false);
 
-const categoryOptions = [
-  { label: "Kelas", value: "Kelas" },
-  { label: "Toilet", value: "Toilet" },
-  { label: "Laboratorium", value: "Laboratorium" },
-  { label: "Perpustakaan", value: "Perpustakaan" },
-  { label: "Lapangan", value: "Lapangan" },
-  { label: "Lainnya", value: "Lainnya" },
-];
+const categoryOptions = computed(() => {
+  const dynamicOptions = categoryStore.options;
+  const currentCategory = selected.value?.category || editForm.category;
+
+  if (
+    currentCategory &&
+    !dynamicOptions.some((option) => option.value === currentCategory)
+  ) {
+    return [
+      ...dynamicOptions,
+      { label: currentCategory, value: currentCategory },
+    ];
+  }
+
+  return dynamicOptions;
+});
 
 const editForm = reactive({
   title: "",
   description: "",
-  category: "Kelas",
+  category: "",
 });
 
 const canModify = computed(() => {
@@ -60,6 +81,17 @@ const timelineItems = computed(() => {
     (a, b) => new Date(b.created_at) - new Date(a.created_at),
   );
 });
+
+const feedbackColumns = [
+  { key: "message", label: "Pesan", icon: MessageSquare, sortable: false },
+  {
+    key: "progress_percentage",
+    label: "Progres",
+    icon: TrendingUp,
+    sortable: false,
+  },
+  { key: "created_at", label: "Tanggal", icon: Calendar, sortable: false },
+];
 
 const latestTimelineProgress = computed(() => {
   if (selected.value?.status === "done") return 100;
@@ -90,8 +122,11 @@ watch(canModify, (allowed) => {
 
 onMounted(async () => {
   try {
-    await complaintStore.loadDetail(route.params.id);
-    await feedbackStore.loadByComplaintId(route.params.id);
+    await Promise.all([
+      complaintStore.loadDetail(route.params.id),
+      feedbackStore.loadByComplaintId(route.params.id),
+      categoryStore.loadAll(),
+    ]);
   } catch (error) {
     showError(error.message);
   }
@@ -192,57 +227,116 @@ async function handleDeleteComplaint() {
 </script>
 
 <template>
-  <section class="space-y-4">
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
-      <p v-if="loading" class="text-sm text-slate-500">Memuat detail...</p>
+  <section class="space-y-6">
+    <!-- Back Button & Title -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button
+          @click="router.push('/siswa/history')"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          <ArrowLeft :size="18" />
+          Kembali
+        </button>
+        <div>
+          <h1 class="text-3xl font-bold text-slate-900">Detail Pengaduan</h1>
+          <p class="text-sm text-slate-600">
+            Lihat status dan riwayat penanganan
+          </p>
+        </div>
+      </div>
+    </div>
 
-      <div v-else-if="selected" class="space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="text-lg font-semibold text-slate-900">
-            {{ selected.title }}
-          </h3>
-          <StatusBadge :status="selected.status" />
+    <!-- Complaint Detail -->
+    <article class="rounded-lg border border-slate-300 bg-white shadow-sm">
+      <div
+        class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
+      >
+        <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <AlertCircle :size="24" class="text-teal-600" />
+          {{ selected?.title || "Loading..." }}
+        </h2>
+      </div>
+
+      <div v-if="loading" class="px-6 py-8 text-center text-slate-500">
+        Memuat detail pengaduan...
+      </div>
+
+      <div v-else-if="selected" class="space-y-4 px-6 py-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p class="text-xs text-slate-600">
+              <strong>Dibuat:</strong> {{ formatDate(selected.created_at) }}
+            </p>
+            <p class="text-xs text-slate-600">
+              <strong>Kategori:</strong> {{ selected.category || "-" }}
+            </p>
+            <p v-if="selected.first_response_at" class="text-xs text-slate-600">
+              <strong>Direspon:</strong>
+              {{ formatDate(selected.first_response_at) }}
+            </p>
+          </div>
+          <div>
+            <span
+              class="inline-flex items-center gap-2 rounded-full border px-4 py-2 font-semibold"
+              :class="{
+                'border-yellow-300 bg-yellow-50 text-yellow-700':
+                  selected.status === 'pending',
+                'border-blue-300 bg-blue-50 text-blue-700':
+                  selected.status === 'process',
+                'border-green-300 bg-green-50 text-green-700':
+                  selected.status === 'done',
+              }"
+            >
+              <component
+                :is="selected.status === 'done' ? CheckCircle2 : AlertCircle"
+                :size="18"
+              />
+              {{
+                selected.status === "pending"
+                  ? "Menunggu"
+                  : selected.status === "process"
+                    ? "Diproses"
+                    : "Selesai"
+              }}
+            </span>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <template v-if="canModify">
-            <Button
-              v-if="!isEditing"
-              outlined
-              size="small"
-              severity="secondary"
-              label="Edit Aspirasi"
-              icon="pi pi-pencil"
-              @click="startEditing"
-            />
-            <Button
-              v-if="!isEditing"
-              outlined
-              size="small"
-              severity="danger"
-              label="Hapus Aspirasi"
-              icon="pi pi-trash"
-              :disabled="submitting"
-              @click="handleDeleteComplaint"
-            />
-          </template>
-
-          <p v-else class="text-xs text-slate-500">
-            Aduan ini sudah berjalan, jadi tidak bisa diubah lagi.
+        <div class="border-t border-slate-200 pt-4">
+          <p class="text-sm leading-relaxed text-slate-700">
+            {{ selected.description }}
           </p>
         </div>
 
-        <p class="text-sm text-slate-500">
-          {{ formatDate(selected.created_at) }} • {{ selected.category }}
-        </p>
+        <button
+          v-if="selected.image_url"
+          @click="openImagePreview"
+          class="group w-full overflow-hidden rounded-lg border border-slate-300 transition hover:border-slate-400"
+        >
+          <img
+            :src="selected.image_url"
+            alt="Bukti"
+            class="max-h-64 w-full object-cover"
+          />
+          <div class="flex items-center justify-between bg-slate-50 px-4 py-2">
+            <span
+              class="flex items-center gap-2 text-sm font-medium text-slate-700"
+            >
+              <Image :size="16" />
+              Bukti Pengaduan
+            </span>
+            <span class="text-xs text-slate-500">Klik untuk perbesar</span>
+          </div>
+        </button>
 
         <form
           v-if="isEditing"
-          class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+          class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4"
           @submit.prevent="handleUpdateComplaint"
         >
-          <label class="admin-input space-y-1 text-sm">
-            <span class="text-slate-600">Judul aspirasi</span>
+          <label class="admin-input space-y-2 text-sm">
+            <span class="font-semibold text-slate-900">Judul Pengaduan</span>
             <InputText
               v-model="editForm.title"
               required
@@ -251,8 +345,8 @@ async function handleDeleteComplaint() {
             />
           </label>
 
-          <label class="admin-input space-y-1 text-sm">
-            <span class="text-slate-600">Deskripsi</span>
+          <label class="admin-input space-y-2 text-sm">
+            <span class="font-semibold text-slate-900">Deskripsi</span>
             <Textarea
               v-model="editForm.description"
               rows="4"
@@ -262,8 +356,8 @@ async function handleDeleteComplaint() {
             />
           </label>
 
-          <label class="admin-input space-y-1 text-sm">
-            <span class="text-slate-600">Kategori</span>
+          <label class="admin-input space-y-2 text-sm">
+            <span class="font-semibold text-slate-900">Kategori</span>
             <Select
               v-model="editForm.category"
               :options="categoryOptions"
@@ -271,16 +365,17 @@ async function handleDeleteComplaint() {
               option-value="value"
               filter
               filter-placeholder="Cari kategori"
-              class="w-full"
+              fluid
             />
           </label>
 
-          <div class="flex flex-wrap justify-end gap-2">
+          <div
+            class="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-4"
+          >
             <Button
               outlined
               severity="secondary"
               label="Batal"
-              icon="pi pi-times"
               :disabled="submitting"
               @click="cancelEditing"
             />
@@ -288,114 +383,121 @@ async function handleDeleteComplaint() {
               type="submit"
               severity="primary"
               label="Simpan Perubahan"
-              icon="pi pi-check"
               :disabled="submitting"
             />
           </div>
         </form>
 
-        <p v-else class="text-sm leading-relaxed text-slate-700">
-          {{ selected.description }}
-        </p>
-
-        <button
-          v-if="selected.image_url"
-          type="button"
-          class="group w-full overflow-hidden rounded-2xl"
-          @click="openImagePreview"
+        <div
+          v-if="canModify"
+          class="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-4"
         >
-          <img
-            :src="selected.image_url"
-            alt="Bukti pengaduan"
-            class="max-h-72 w-full rounded-2xl object-cover transition group-hover:scale-[1.01]"
-          />
-          <span
-            class="mt-2 inline-flex text-xs font-medium text-blue-700 group-hover:text-blue-800"
+          <button
+            v-if="!isEditing"
+            @click="startEditing"
+            class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Klik foto untuk perbesar
-          </span>
-        </button>
+            <Edit2 :size="16" />
+            Edit Pengaduan
+          </button>
+          <button
+            v-if="!isEditing"
+            @click="handleDeleteComplaint"
+            :disabled="submitting"
+            class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+          >
+            <Trash2 :size="16" />
+            Hapus Pengaduan
+          </button>
+        </div>
+
+        <div
+          v-else
+          class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3"
+        >
+          <p class="text-sm font-medium text-amber-700">
+            ℹ️ Pengaduan ini sudah berjalan dan tidak bisa diubah lagi.
+          </p>
+        </div>
       </div>
     </article>
 
-    <article class="rounded-2xl bg-white p-5 shadow-sm">
-      <h4 class="text-base font-semibold text-slate-900">Riwayat Penanganan</h4>
-
-      <div v-if="timelineItems.length" class="mt-4 pl-1">
-        <div class="relative pl-7">
-          <span
-            class="absolute bottom-0 left-[11px] top-1 w-px bg-slate-200"
-          ></span>
-
-          <div v-if="latestTimelineProgress !== null" class="relative pb-5">
-            <span
-              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-600 bg-blue-600"
-            ></span>
-            <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
-              <div
-                class="mb-1 flex items-center justify-between text-xs font-semibold text-blue-700"
-              >
-                <span>Progres</span>
-                <span>{{ latestTimelineProgress }}%</span>
-              </div>
-              <div class="h-2 rounded-full bg-blue-100">
-                <div
-                  class="h-2 rounded-full bg-blue-600 transition-all"
-                  :style="{ width: `${latestTimelineProgress}%` }"
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="selected?.completed_at" class="relative pb-5">
-            <span
-              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-emerald-600 bg-emerald-600"
-            ></span>
+    <!-- Progress Indicator -->
+    <div
+      v-if="latestTimelineProgress !== null"
+      class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+    >
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-blue-900">Progres Penanganan</p>
+          <p class="text-2xl font-bold text-blue-600">
+            {{ latestTimelineProgress }}%
+          </p>
+        </div>
+        <div class="flex-1">
+          <div class="h-3 rounded-full bg-blue-100">
             <div
-              class="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs font-medium text-emerald-700"
-            >
-              Selesai: {{ formatDate(selected.completed_at) }}
-            </div>
-          </div>
-
-          <div
-            v-for="(item, index) in timelineItems"
-            :key="item.id"
-            class="relative pb-5 last:pb-0"
-          >
-            <span
-              class="absolute -left-7 top-2 h-3 w-3 rounded-full border"
-              :class="
-                index === 0
-                  ? 'border-blue-600 bg-blue-600'
-                  : 'border-slate-300 bg-white'
-              "
-            ></span>
-
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p class="text-sm text-slate-700">{{ item.message }}</p>
-              <p class="mt-1 text-xs text-slate-500">
-                {{ formatDate(item.created_at) }}
-              </p>
-            </div>
-          </div>
-
-          <div v-if="selected?.first_response_at" class="relative">
-            <span
-              class="absolute -left-7 top-2 h-3 w-3 rounded-full border border-blue-300 bg-white"
-            ></span>
-            <div
-              class="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs font-medium text-blue-700"
-            >
-              Direspon: {{ formatDate(selected.first_response_at) }}
-            </div>
+              class="h-3 rounded-full bg-blue-600 transition-all"
+              :style="{ width: `${latestTimelineProgress}%` }"
+            />
           </div>
         </div>
       </div>
+    </div>
 
-      <p v-else class="mt-3 text-sm text-slate-500">Belum ada kabar terbaru.</p>
+    <!-- Timeline Table -->
+    <article class="rounded-lg border border-slate-300 bg-white shadow-sm">
+      <div
+        class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
+      >
+        <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <MessageSquare :size="24" class="text-teal-600" />
+          Riwayat Penanganan
+        </h2>
+      </div>
+
+      <div class="overflow-x-auto">
+        <DataTable
+          :columns="feedbackColumns"
+          :items="timelineItems"
+          :page-size="10"
+          empty-title="Belum ada riwayat"
+          empty-message="Belum ada kabar dari admin mengenai pengaduan Anda"
+        >
+          <template #cell-message="{ item }">
+            <p class="text-sm text-slate-800">{{ item.message }}</p>
+          </template>
+
+          <template #cell-progress_percentage="{ item }">
+            <div
+              v-if="item.progress_percentage !== null"
+              class="flex items-center gap-2"
+            >
+              <div class="w-16 rounded-full bg-slate-100">
+                <div
+                  class="h-1.5 rounded-full bg-teal-600"
+                  :style="{ width: `${item.progress_percentage}%` }"
+                />
+              </div>
+              <span
+                class="whitespace-nowrap rounded-full bg-teal-100 px-2.5 py-0.5 text-sm font-bold text-teal-700"
+              >
+                {{ item.progress_percentage }}%
+              </span>
+            </div>
+            <span v-else class="text-xs text-slate-500">-</span>
+          </template>
+
+          <template #cell-created_at="{ item }">
+            <span class="text-sm text-slate-700">{{
+              formatDate(item.created_at)
+            }}</span>
+          </template>
+        </DataTable>
+      </div>
     </article>
 
+    <!-- Image Preview Dialog -->
     <Dialog
       v-model:visible="imagePreviewVisible"
       modal
