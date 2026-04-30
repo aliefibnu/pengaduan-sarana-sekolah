@@ -4,6 +4,7 @@ import { RouterLink } from "vue-router";
 import Select from "primevue/select";
 import {
   ArrowRight,
+  ArrowUp,
   ShieldCheck,
   Sparkles,
   BarChart3,
@@ -56,9 +57,10 @@ function statusIcon(status) {
 
 const heroStyle = {
   backgroundImage:
-    'linear-gradient(135deg, rgba(2,6,23,0.92), rgba(15,23,42,0.72)), url("/og-image.svg")',
+    'linear-gradient(135deg, rgba(9,9,11,0.68), rgba(9,9,11,0.36)), url("/bg-image.webp")',
   backgroundSize: "cover",
   backgroundPosition: "center",
+  backgroundAttachment: "fixed",
 };
 
 const filteredItems = computed(() => {
@@ -75,6 +77,10 @@ const filteredItems = computed(() => {
   });
 });
 
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 onMounted(async () => {
   try {
     await Promise.all([complaintStore.loadAll(), categoryStore.loadAll()]);
@@ -88,7 +94,7 @@ const highlights = [
     icon: ShieldCheck,
     title: "Akses terstruktur",
     description:
-      "Siswa masuk dengan NISN, admin dengan username, tetap aman di belakang layar lewat Supabase.",
+      "Siswa masuk dengan NIS 8 digit, admin dengan username, tetap aman di belakang layar lewat Supabase.",
   },
   {
     icon: BarChart3,
@@ -120,61 +126,59 @@ const stats = [
 </script>
 
 <template>
-  <main class="overflow-hidden bg-slate-950 text-slate-100">
-    <section id="hero" class="relative isolate min-h-screen" :style="heroStyle">
+  <main class="overflow-hidden bg-white text-slate-900">
+    <section id="hero" class="relative isolate min-h-[82vh]" :style="heroStyle">
       <div
-        class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(13,148,136,0.26),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.16),transparent_30%)]"
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.04),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.02),transparent_34%)]"
       ></div>
-      <div
-        class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-slate-950/80 to-transparent"
-      ></div>
+      <div class="absolute inset-x-0 top-0 h-28 bg-black/40"></div>
 
       <div
-        class="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8"
+        class="relative mx-auto flex min-h-[82vh] max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8"
       >
         <header
-          class="sticky top-4 z-20 mb-8 rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-4 shadow-2xl shadow-slate-950/25 backdrop-blur-xl md:px-5"
+          class="sticky top-2 z-20 mb-4 rounded-3xl border border-slate-200 bg-white px-4 py-2 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:px-5"
         >
           <div class="flex flex-wrap items-center justify-between gap-4">
             <RouterLink to="/" class="group flex items-center gap-3">
               <div
-                class="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-500 text-white shadow-lg shadow-teal-900/30 transition group-hover:scale-105"
+                class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-900/10 transition group-hover:scale-105"
               >
                 <Megaphone class="h-5 w-5" />
               </div>
               <div>
                 <p
-                  class="text-[11px] font-bold uppercase tracking-[0.28em] text-teal-200/80"
+                  class="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-700"
                 >
                   Pengaduan Sarana Sekolah
                 </p>
-                <h1 class="text-lg font-black text-white sm:text-xl">
+                <h1 class="text-lg font-black text-slate-900 sm:text-xl">
                   Lapor cepat, tindak lanjut jelas
                 </h1>
               </div>
             </RouterLink>
 
             <nav
-              class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-200"
+              class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-700"
             >
               <a
                 href="#hero"
-                class="rounded-full px-4 py-2 transition hover:bg-white/10 hover:text-white"
+                class="rounded-full px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900"
                 >Beranda</a
               >
               <a
                 href="#aduan"
-                class="rounded-full px-4 py-2 transition hover:bg-white/10 hover:text-white"
+                class="rounded-full px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900"
                 >Aduan</a
               >
               <a
                 href="#info"
-                class="rounded-full px-4 py-2 transition hover:bg-white/10 hover:text-white"
+                class="rounded-full px-4 py-2 transition hover:bg-slate-100 hover:text-slate-900"
                 >Info</a
               >
               <RouterLink
                 to="/login"
-                class="inline-flex items-center gap-2 rounded-full bg-teal-500 px-4 py-2 text-white transition hover:bg-teal-400"
+                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-white transition hover:bg-slate-800"
               >
                 Masuk
                 <ArrowRight class="h-4 w-4" />
@@ -188,10 +192,10 @@ const stats = [
         >
           <section class="space-y-8">
             <div
-              class="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100"
+              class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-50/80 px-4 py-2 text-sm text-slate-700 backdrop-blur"
             >
               <Sparkles class="h-4 w-4" />
-              Alur pelaporan cepat untuk siswa dan admin
+              Simple, minimalis, dan mudah dipakai
             </div>
 
             <div class="space-y-5">
@@ -202,25 +206,24 @@ const stats = [
                 sekolah tetap nyaman.
               </h2>
               <p
-                class="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg"
+                class="max-w-2xl text-base leading-8 text-slate-200 sm:text-lg"
               >
-                Platform ini membantu siswa mengirim pengaduan sarana sekolah
-                secara terpusat, sementara admin bisa memproses laporan,
-                mengubah status, dan memberikan feedback tanpa alur yang
-                berbelit.
+                Platform ini dirancang simpel dan mudah dipakai untuk siswa
+                maupun admin, supaya pengaduan sarana sekolah bisa dikirim,
+                diproses, dan dipantau tanpa alur yang berbelit.
               </p>
             </div>
 
             <div class="flex flex-wrap gap-3">
               <RouterLink
                 to="/login"
-                class="inline-flex items-center gap-2 rounded-full bg-teal-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-400"
+                class="inline-flex items-center gap-2 rounded-full bg-slate-900/90 backdrop-blur px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 Login admin / siswa
               </RouterLink>
               <a
                 href="#aduan"
-                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-50/80 backdrop-blur px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
               >
                 Lihat aduan terbaru
               </a>
@@ -230,32 +233,30 @@ const stats = [
               <div
                 v-for="item in stats"
                 :key="item.label"
-                class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+                class="rounded-2xl border border-slate-200/50 bg-slate-50/70 p-4 backdrop-blur"
               >
-                <dt class="text-sm text-slate-300">{{ item.label }}</dt>
-                <dd class="mt-2 text-3xl font-black text-white">
+                <dt class="text-sm text-slate-700">{{ item.label }}</dt>
+                <dd class="mt-2 text-3xl font-black text-slate-900">
                   {{ item.value }}
                 </dd>
-                <p class="mt-1 text-sm text-slate-400">{{ item.detail }}</p>
+                <p class="mt-1 text-sm text-slate-600">{{ item.detail }}</p>
               </div>
             </dl>
           </section>
 
           <section
-            class="grid gap-4 rounded-4xl border border-white/10 bg-white/5 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-7"
+            class="grid gap-4 rounded-4xl border border-slate-200/50 bg-slate-50/70 p-5 shadow-lg shadow-slate-200/50 backdrop-blur md:p-7"
           >
-            <article
-              class="rounded-2xl border border-white/10 bg-slate-900/70 p-5"
-            >
+            <article class="rounded-2xl border border-slate-200/50 bg-white/90 p-5 backdrop-blur">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/80"
+                class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700"
               >
                 Kenapa penting
               </p>
-              <h3 class="mt-2 text-2xl font-bold text-white">
+              <h3 class="mt-2 text-2xl font-bold text-slate-900">
                 Satu pintu untuk keluhan sarana
               </h3>
-              <p class="mt-3 text-sm leading-7 text-slate-300">
+              <p class="mt-3 text-sm leading-7 text-slate-600">
                 Laporan terpusat membuat tindak lanjut lebih mudah dilacak,
                 meminimalkan pesan tercecer, dan memberi transparansi kepada
                 siswa.
@@ -266,49 +267,53 @@ const stats = [
               <article
                 v-for="item in highlights"
                 :key="item.title"
-                class="rounded-2xl border border-white/10 bg-slate-900/60 p-5"
+                class="rounded-2xl border border-slate-200/50 bg-white/90 p-5 backdrop-blur"
               >
-                <component :is="item.icon" class="h-5 w-5 text-cyan-300" />
-                <h4 class="mt-3 text-base font-semibold text-white">
+                <component :is="item.icon" class="h-5 w-5 text-slate-700" />
+                <h4 class="mt-3 text-base font-semibold text-slate-900">
                   {{ item.title }}
                 </h4>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
+                <p class="mt-2 text-sm leading-6 text-slate-600">
                   {{ item.description }}
                 </p>
               </article>
             </div>
           </section>
         </div>
+      </div>
+    </section>
 
+    <section class="bg-slate-100">
+      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <section
           id="info"
-          class="grid gap-4 border-t border-white/10 py-8 text-sm text-slate-300 md:grid-cols-3"
+          class="grid gap-4 border-t border-slate-300 py-8 text-sm text-slate-700 md:grid-cols-3"
         >
           <p>
-            <span class="font-semibold text-white">Siswa:</span> kirim aduan
-            dengan NISN sebagai identitas login.
+            <span class="font-semibold text-slate-900">Siswa:</span> kirim aduan
+            dengan NIS 8 digit sebagai identitas login.
           </p>
           <p>
-            <span class="font-semibold text-white">Admin:</span> login dengan
-            username untuk memproses laporan.
+            <span class="font-semibold text-slate-900">Admin:</span> login
+            dengan username untuk memproses laporan.
           </p>
           <p>
-            <span class="font-semibold text-white">Transparan:</span> status dan
-            feedback dapat dipantau dari dashboard.
+            <span class="font-semibold text-slate-900">Transparan:</span> status
+            dan feedback dapat dipantau dari dashboard.
           </p>
         </section>
 
-        <section id="aduan" class="space-y-4 border-t border-white/10 py-8">
+        <section id="aduan" class="space-y-4 border-t border-slate-300 py-8">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 class="text-2xl font-bold text-white">Aduan Terbaru</h2>
-              <p class="mt-1 text-sm text-slate-300">
+              <h2 class="text-2xl font-bold text-slate-900">Aduan Terbaru</h2>
+              <p class="mt-1 text-sm text-slate-600">
                 Guest dapat melihat seluruh aduan secara read-only.
               </p>
             </div>
             <RouterLink
               to="/login"
-              class="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10"
+              class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-slate-100"
             >
               Login untuk mengirim aduan
               <ArrowRight class="h-3.5 w-3.5" />
@@ -317,7 +322,7 @@ const stats = [
 
           <div class="grid gap-3 md:grid-cols-2">
             <label class="space-y-1 text-sm">
-              <span class="text-slate-300">Status</span>
+              <span class="text-slate-900">Status</span>
               <Select
                 v-model="localFilters.status"
                 :options="statusOptions"
@@ -331,7 +336,7 @@ const stats = [
             </label>
 
             <label class="space-y-1 text-sm">
-              <span class="text-slate-300">Kategori</span>
+              <span class="text-slate-900">Kategori</span>
               <Select
                 v-model="localFilters.category"
                 :options="categoryOptions"
@@ -345,43 +350,43 @@ const stats = [
             </label>
           </div>
 
-          <p v-if="complaintStore.loading" class="text-sm text-slate-300">
+          <p v-if="complaintStore.loading" class="text-sm text-slate-700">
             Memuat aduan publik...
           </p>
 
           <div v-else-if="filteredItems.length" class="overflow-x-auto">
             <table
-              class="min-w-full border-separate border-spacing-0 overflow-hidden rounded-3xl border border-white/10 text-left"
+              class="min-w-full border-separate border-spacing-0 overflow-hidden rounded-3xl border border-slate-200 bg-white text-left"
             >
               <thead>
                 <tr
-                  class="bg-white/5 text-xs uppercase tracking-[0.18em] text-slate-300"
+                  class="bg-slate-200 text-xs uppercase tracking-[0.18em] text-slate-900"
                 >
                   <th
-                    class="whitespace-nowrap border-b border-white/10 px-4 py-4 font-bold"
+                    class="whitespace-nowrap border-b border-slate-300 px-4 py-4 font-bold"
                   >
                     ID
                   </th>
-                  <th class="border-b border-white/10 px-4 py-4 font-bold">
+                  <th class="border-b border-slate-300 px-4 py-4 font-bold">
                     Judul
                   </th>
                   <th
-                    class="whitespace-nowrap border-b border-white/10 px-4 py-4 font-bold"
+                    class="whitespace-nowrap border-b border-slate-300 px-4 py-4 font-bold"
                   >
                     Kategori
                   </th>
                   <th
-                    class="whitespace-nowrap border-b border-white/10 px-4 py-4 font-bold"
+                    class="whitespace-nowrap border-b border-slate-300 px-4 py-4 font-bold"
                   >
                     Status
                   </th>
                   <th
-                    class="whitespace-nowrap border-b border-white/10 px-4 py-4 font-bold"
+                    class="whitespace-nowrap border-b border-slate-300 px-4 py-4 font-bold"
                   >
                     Dibuat
                   </th>
                   <th
-                    class="whitespace-nowrap border-b border-white/10 px-4 py-4 font-bold"
+                    class="whitespace-nowrap border-b border-slate-300 px-4 py-4 font-bold"
                   >
                     Detail
                   </th>
@@ -391,53 +396,47 @@ const stats = [
                 <tr
                   v-for="(item, index) in filteredItems"
                   :key="item.id"
-                  class="border-b border-white/10 transition hover:bg-white/5"
+                  class="border-b border-slate-200 transition hover:bg-slate-50"
                 >
                   <td
-                    class="whitespace-nowrap px-4 py-4 font-mono text-xs font-semibold text-cyan-200"
+                    class="whitespace-nowrap px-4 py-4 font-mono text-xs font-semibold text-slate-900"
                   >
                     #{{ index + 1 }}
                   </td>
                   <td class="px-4 py-4 align-top">
                     <div class="space-y-1">
-                      <p class="font-semibold text-white">{{ item.title }}</p>
-                      <p class="max-w-2xl text-xs leading-5 text-slate-300">
+                      <p class="font-semibold text-slate-900">
+                        {{ item.title }}
+                      </p>
+                      <p class="max-w-2xl text-xs leading-5 text-slate-600">
                         {{ item.description }}
                       </p>
                     </div>
                   </td>
                   <td class="whitespace-nowrap px-4 py-4 align-top">
                     <span
-                      class="inline-flex items-center rounded-full border border-teal-400/20 bg-teal-400/10 px-2.5 py-1 text-xs font-semibold text-teal-100"
+                      class="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"
                     >
                       {{ item.category }}
                     </span>
                   </td>
                   <td class="whitespace-nowrap px-4 py-4 align-top">
                     <span
-                      class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
-                      :class="{
-                        'border-yellow-300/30 bg-yellow-400/10 text-yellow-100':
-                          item.status === 'pending',
-                        'border-blue-300/30 bg-blue-400/10 text-blue-100':
-                          item.status === 'process',
-                        'border-emerald-300/30 bg-emerald-400/10 text-emerald-100':
-                          item.status === 'done',
-                      }"
+                      class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
                     >
                       <component :is="statusIcon(item.status)" :size="13" />
                       {{ statusLabel(item.status) }}
                     </span>
                   </td>
                   <td
-                    class="whitespace-nowrap px-4 py-4 align-top text-sm text-slate-200"
+                    class="whitespace-nowrap px-4 py-4 align-top text-sm text-slate-700"
                   >
                     {{ formatDate(item.created_at) }}
                   </td>
                   <td class="whitespace-nowrap px-4 py-4 align-top">
                     <RouterLink
                       :to="`/complaints/${item.id}`"
-                      class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-900 transition hover:bg-slate-100"
+                      class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800"
                     >
                       Lihat
                       <Eye class="h-3.5 w-3.5" />
@@ -448,11 +447,20 @@ const stats = [
             </table>
           </div>
 
-          <p v-else class="text-sm text-slate-300">
+          <p v-else class="text-sm text-slate-700">
             Belum ada aduan yang cocok dengan filter.
           </p>
         </section>
       </div>
     </section>
+
+    <button
+      @click="scrollToTop"
+      class="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg transition hover:bg-slate-800 hover:scale-110"
+      aria-label="Kembali ke atas"
+      title="Kembali ke atas"
+    >
+      <ArrowUp class="h-5 w-5" />
+    </button>
   </main>
 </template>

@@ -15,10 +15,12 @@ defineProps({
 
 <template>
   <aside
-    class="w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:w-72"
+    class="w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 lg:w-72"
   >
     <div class="mb-6">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+      <p
+        class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+      >
         Dashboard
       </p>
       <h1 class="mt-2 text-lg font-bold text-slate-900">{{ title }}</h1>
@@ -29,8 +31,8 @@ defineProps({
         v-for="menu in menus"
         :key="menu.to"
         :to="menu.to"
-        class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
-        active-class="bg-blue-50 text-blue-700"
+        class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        active-class="bg-slate-100 text-slate-900"
       >
         {{ menu.label }}
       </RouterLink>

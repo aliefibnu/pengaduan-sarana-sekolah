@@ -64,7 +64,7 @@ const latestTimelineProgress = computed(() => {
 
     <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
       <span
-        class="rounded-lg bg-blue-50 px-2.5 py-1 font-medium text-blue-700"
+        class="rounded-lg bg-slate-100 px-2.5 py-1 font-medium text-slate-700"
         >{{ complaint.category }}</span
       >
       <span
@@ -83,7 +83,7 @@ const latestTimelineProgress = computed(() => {
       </span>
       <span
         v-if="latestTimelineProgress !== null"
-        class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 font-semibold text-blue-700"
+        class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-semibold text-slate-700"
       >
         <TrendingUp class="h-3.5 w-3.5" />
         {{ latestTimelineProgress }}%
@@ -92,10 +92,10 @@ const latestTimelineProgress = computed(() => {
 
     <div
       v-if="complaint.first_response_at"
-      class="mt-3 w-full rounded-xl border border-blue-100 bg-blue-50 p-2"
+      class="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 p-2"
     >
       <p
-        class="inline-flex items-center gap-1 text-xs font-medium text-blue-700"
+        class="inline-flex items-center gap-1 text-xs font-medium text-slate-700"
       >
         <Clock3 class="h-3.5 w-3.5" />
         Ditanggapi: {{ formatDate(complaint.first_response_at) }}
@@ -104,10 +104,10 @@ const latestTimelineProgress = computed(() => {
 
     <div
       v-if="complaint.completed_at"
-      class="mt-2 w-full rounded-xl border border-emerald-100 bg-emerald-50 p-2"
+      class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-2"
     >
       <p
-        class="inline-flex items-center gap-1 text-xs font-medium text-emerald-700"
+        class="inline-flex items-center gap-1 text-xs font-medium text-slate-700"
       >
         <CheckCircle2 class="h-3.5 w-3.5" />
         Selesai: {{ formatDate(complaint.completed_at) }}

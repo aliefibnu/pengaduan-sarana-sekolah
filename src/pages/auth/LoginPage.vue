@@ -13,6 +13,8 @@ import {
 } from "@/utils/notifications";
 import { User, Lock, LogIn } from "lucide-vue-next";
 
+const NIS_REGEX = /^\d{1,8}$/;
+
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -22,6 +24,19 @@ const form = reactive({
 });
 
 async function handleSubmit() {
+  const identity = form.identity.trim();
+
+  if (!identity) {
+    showError("NIS siswa atau username admin wajib diisi.");
+    return;
+  }
+
+  if (/^\d+$/.test(identity) && !NIS_REGEX.test(identity)) {
+    showError("NIS siswa maksimal 8 digit angka.");
+    return;
+  }
+
+  form.identity = identity;
   openLoading("Login akun...");
 
   try {
@@ -49,7 +64,7 @@ async function handleSubmit() {
     <!-- Header -->
     <div class="space-y-2">
       <div class="flex items-center gap-3">
-        <div class="rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 p-2">
+        <div class="rounded-lg bg-linear-to-br from-teal-500 to-teal-600 p-2">
           <LogIn :size="24" class="text-white" />
         </div>
         <h2 class="text-3xl font-bold text-white">Masuk Sistem</h2>
@@ -73,12 +88,12 @@ async function handleSubmit() {
           v-model="form.identity"
           type="text"
           required
-          placeholder="Masukkan NIS siswa atau username admin"
+          placeholder="Masukkan NIS 8 digit siswa atau username admin"
           inputmode="text"
           class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 placeholder-slate-500 transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
         />
         <p class="text-xs text-slate-600">
-          Gunakan NIS untuk siswa atau username untuk admin
+          Gunakan NIS 8 digit untuk siswa atau username untuk admin
         </p>
       </label>
 
@@ -109,16 +124,6 @@ async function handleSubmit() {
       />
     </form>
 
-    <!-- Info Banner -->
-    <div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
-      <p class="text-sm text-blue-800">
-        <strong>💡 Informasi Login:</strong>
-      </p>
-      <ul class="mt-2 space-y-1 text-xs text-blue-700">
-        <li>• Siswa: Gunakan NIS sebagai username</li>
-        <li>• Admin: Gunakan username yang telah ditetapkan</li>
-        <li>• Hubungi admin jika lupa password</li>
-      </ul>
-    </div>
+    <!-- Info Banner moved to about section in AuthLayout -->
   </div>
 </template>

@@ -10,8 +10,8 @@ const props = defineProps({
 });
 
 const severity = computed(() => {
-  if (props.status === "done") return "success";
-  if (props.status === "process") return "warn";
+  if (props.status === "done") return "secondary";
+  if (props.status === "process") return "secondary";
   return "secondary";
 });
 

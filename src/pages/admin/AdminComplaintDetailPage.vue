@@ -123,7 +123,7 @@ onMounted(loadData);
         class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
       >
         <h1 class="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          <AlertCircle :size="24" class="text-teal-600" />
+          <AlertCircle :size="24" class="text-slate-600" />
           {{ selected?.title || "Loading..." }}
         </h1>
       </div>
@@ -147,7 +147,7 @@ onMounted(loadData);
             :class="{
               'border-yellow-300 bg-yellow-50 text-yellow-700':
                 selected.status === 'pending',
-              'border-blue-300 bg-blue-50 text-blue-700':
+              'border-slate-300 bg-slate-50 text-slate-700':
                 selected.status === 'process',
               'border-green-300 bg-green-50 text-green-700':
                 selected.status === 'done',
@@ -184,19 +184,19 @@ onMounted(loadData);
 
     <div
       v-if="latestTimelineProgress !== null"
-      class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+      class="rounded-lg border border-slate-300 bg-slate-50 p-4"
     >
       <div class="flex items-center justify-between gap-4">
         <div>
-          <p class="text-sm font-semibold text-blue-900">Progres Penanganan</p>
-          <p class="text-2xl font-bold text-blue-600">
+          <p class="text-sm font-semibold text-slate-900">Progres Penanganan</p>
+          <p class="text-2xl font-bold text-slate-700">
             {{ latestTimelineProgress }}%
           </p>
         </div>
         <div class="flex-1">
-          <div class="h-3 rounded-full bg-blue-100">
+          <div class="h-3 rounded-full bg-slate-200">
             <div
-              class="h-3 rounded-full bg-blue-600 transition-all"
+              class="h-3 rounded-full bg-slate-600 transition-all"
               :style="{ width: `${latestTimelineProgress}%` }"
             />
           </div>
@@ -209,7 +209,7 @@ onMounted(loadData);
         class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
       >
         <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
-          <MessageSquare :size="24" class="text-teal-600" />
+          <MessageSquare :size="24" class="text-slate-600" />
           Riwayat Feedback
         </h2>
       </div>
@@ -231,12 +231,12 @@ onMounted(loadData);
             >
               <div class="w-16 rounded-full bg-slate-100">
                 <div
-                  class="h-1.5 rounded-full bg-teal-600"
+                  class="h-1.5 rounded-full bg-slate-600"
                   :style="{ width: `${item.progress_percentage}%` }"
                 />
               </div>
               <span
-                class="whitespace-nowrap rounded-full bg-teal-100 px-2.5 py-0.5 text-sm font-bold text-teal-700"
+                class="whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-0.5 text-sm font-bold text-slate-700"
               >
                 {{ item.progress_percentage }}%
               </span>

@@ -67,7 +67,7 @@ onMounted(async () => {
     <!-- Header -->
     <div class="space-y-1">
       <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-        <History :size="28" class="text-teal-600" />
+        <History :size="28" class="text-slate-700" />
         Riwayat Pengaduan
       </h1>
       <p class="text-sm text-slate-600">Lihat semua pengaduan yang Anda buat</p>
@@ -136,7 +136,7 @@ onMounted(async () => {
           <template #cell-title="{ item }">
             <RouterLink
               :to="`/siswa/detail/${item.id}`"
-              class="line-clamp-1 text-sm text-teal-600 hover:underline"
+              class="line-clamp-1 text-sm text-slate-700 hover:underline"
             >
               {{ item.title }}
             </RouterLink>
@@ -150,7 +150,7 @@ onMounted(async () => {
 
           <template #cell-category="{ item }">
             <span
-              class="inline-block rounded-full border border-teal-200 bg-teal-100 px-2.5 py-1 text-xs font-semibold text-teal-800"
+              class="inline-block rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"
             >
               {{ item.category }}
             </span>
@@ -160,11 +160,11 @@ onMounted(async () => {
             <span
               class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold"
               :class="{
-                'border-yellow-300 bg-yellow-50 text-yellow-700':
+                'border-slate-300 bg-slate-50 text-slate-700':
                   item.status === 'pending',
-                'border-blue-300 bg-blue-50 text-blue-700':
-                  item.status === 'process',
-                'border-green-300 bg-green-50 text-green-700':
+                'border-slate-300 bg-slate-50 text-slate-700':
+                  item.status === 'processing',
+                'border-slate-300 bg-slate-50 text-slate-700':
                   item.status === 'done',
               }"
             >

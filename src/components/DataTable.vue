@@ -2,13 +2,13 @@
   <div class="space-y-3">
     <!-- Table Container with responsive scroll -->
     <div
-      class="overflow-x-auto rounded-lg border border-slate-300 bg-white shadow-sm"
+      class="overflow-x-auto rounded-lg border border-slate-300 bg-white shadow-sm shadow-slate-900/5"
     >
       <table class="w-full text-sm">
         <!-- Table Header -->
         <thead>
           <tr
-            class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100"
+            class="border-b border-slate-200 bg-linear-to-r from-slate-50 to-slate-100"
           >
             <th
               v-for="column in columns"
@@ -23,7 +23,7 @@
                   v-if="column.icon"
                   :is="column.icon"
                   :size="16"
-                  class="flex-shrink-0 text-teal-600"
+                  class="shrink-0 text-slate-600"
                 />
                 <span>{{ column.label }}</span>
                 <!-- Sort Indicator -->
@@ -34,7 +34,7 @@
                     sortDirection === 'asc'
                   "
                   :size="16"
-                  class="ml-auto text-teal-600"
+                  class="ml-auto text-slate-600"
                 />
                 <ArrowDown
                   v-else-if="
@@ -43,7 +43,7 @@
                     sortDirection === 'desc'
                   "
                   :size="16"
-                  class="ml-auto text-teal-600"
+                  class="ml-auto text-slate-600"
                 />
               </div>
             </th>
@@ -55,7 +55,7 @@
           <tr
             v-for="(item, index) in paginatedItems"
             :key="item.id || index"
-            class="border-b border-slate-100 transition-colors hover:bg-teal-50"
+            class="border-b border-slate-100 transition-colors hover:bg-slate-50"
           >
             <td v-for="column in columns" :key="column.key" class="px-4 py-3">
               <slot
@@ -119,7 +119,7 @@
             :class="[
               'px-3 py-2 rounded-lg text-sm font-medium',
               currentPage === page
-                ? 'bg-teal-600 text-white'
+                ? 'bg-slate-900 text-white'
                 : 'border border-slate-300 text-slate-700 hover:bg-slate-50',
             ]"
           >

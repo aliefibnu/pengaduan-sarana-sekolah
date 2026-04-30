@@ -99,7 +99,7 @@ onMounted(async () => {
     >
       <div class="space-y-1">
         <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-          <BarChart3 :size="28" class="text-teal-600" />
+          <BarChart3 :size="28" class="text-slate-700" />
           Dashboard Siswa
         </h1>
         <p class="text-sm text-slate-600">Ringkasan laporan pengaduan Anda</p>
@@ -108,7 +108,7 @@ onMounted(async () => {
         <Button
           label="Buat Pengaduan"
           :icon="Plus"
-          class="bg-teal-600 text-white hover:bg-teal-700"
+          class="bg-slate-900 text-white hover:bg-slate-800"
         />
       </RouterLink>
     </div>
@@ -133,9 +133,9 @@ onMounted(async () => {
               :size="18"
               :class="{
                 'text-slate-600': item.id === 'total',
-                'text-yellow-600': item.id === 'pending',
-                'text-blue-600': item.id === 'processing',
-                'text-green-600': item.id === 'completed',
+                'text-slate-600': item.id === 'pending',
+                'text-slate-700': item.id === 'processing',
+                'text-slate-800': item.id === 'completed',
               }"
             />
             <span class="font-semibold text-slate-900">{{ item.status }}</span>
@@ -160,7 +160,7 @@ onMounted(async () => {
         class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
       >
         <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
-          <FileText :size="24" class="text-teal-600" />
+          <FileText :size="24" class="text-slate-700" />
           Laporan Terbaru
         </h2>
       </div>
@@ -181,7 +181,7 @@ onMounted(async () => {
           <template #cell-title="{ item }">
             <RouterLink
               :to="`/siswa/detail/${item.id}`"
-              class="line-clamp-1 text-sm text-teal-600 hover:underline"
+              class="line-clamp-1 text-sm text-slate-700 hover:underline"
             >
               {{ item.title }}
             </RouterLink>
@@ -195,7 +195,7 @@ onMounted(async () => {
 
           <template #cell-category="{ item }">
             <span
-              class="inline-block rounded-full border border-teal-200 bg-teal-100 px-2.5 py-1 text-xs font-semibold text-teal-800"
+              class="inline-block rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"
             >
               {{ item.category }}
             </span>
@@ -205,11 +205,11 @@ onMounted(async () => {
             <span
               class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold"
               :class="{
-                'border-yellow-300 bg-yellow-50 text-yellow-700':
+                'border-slate-300 bg-slate-50 text-slate-700':
                   item.status === 'pending',
-                'border-blue-300 bg-blue-50 text-blue-700':
-                  item.status === 'process',
-                'border-green-300 bg-green-50 text-green-700':
+                'border-slate-300 bg-slate-50 text-slate-700':
+                  item.status === 'processing',
+                'border-slate-300 bg-slate-50 text-slate-700':
                   item.status === 'done',
               }"
             >

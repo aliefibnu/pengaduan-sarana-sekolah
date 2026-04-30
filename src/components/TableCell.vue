@@ -59,7 +59,7 @@ const props = defineProps({
   },
   iconClass: {
     type: String,
-    default: "text-teal-600",
+    default: "text-slate-700",
   },
   isStatus: {
     type: Boolean,
@@ -90,22 +90,29 @@ const getStatusIcon = (status) => {
 
 const getStatusClasses = (status) => {
   const lowerStatus = String(status).toLowerCase();
-  const baseClass = "border";
 
+  // Positive / completed — green
   if (["completed", "selesai", "done"].includes(lowerStatus)) {
-    return `${baseClass} border-green-300 bg-green-50 text-green-700`;
-  }
-  if (["processing", "proses"].includes(lowerStatus)) {
-    return `${baseClass} border-blue-300 bg-blue-50 text-blue-700`;
-  }
-  if (["pending", "ditunda"].includes(lowerStatus)) {
-    return `${baseClass} border-amber-300 bg-amber-50 text-amber-700`;
-  }
-  if (["rejected", "ditolak", "failed", "gagal"].includes(lowerStatus)) {
-    return `${baseClass} border-red-300 bg-red-50 text-red-700`;
+    return "border border-emerald-200 bg-emerald-50 text-emerald-700";
   }
 
-  return `${baseClass} border-slate-300 bg-slate-50 text-slate-700`;
+  // Processing — blue/teal
+  if (["processing", "proses"].includes(lowerStatus)) {
+    return "border border-sky-200 bg-sky-50 text-sky-700";
+  }
+
+  // Pending / waiting — amber
+  if (["pending", "ditunda"].includes(lowerStatus)) {
+    return "border border-amber-200 bg-amber-50 text-amber-800";
+  }
+
+  // Rejected / failed — red
+  if (["rejected", "ditolak", "failed", "gagal"].includes(lowerStatus)) {
+    return "border border-rose-200 bg-rose-50 text-rose-700";
+  }
+
+  // Fallback: neutral slate
+  return "border border-slate-300 bg-slate-50 text-slate-700";
 };
 
 const formatStatusLabel = (status) => {

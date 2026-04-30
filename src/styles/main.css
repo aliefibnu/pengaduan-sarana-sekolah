@@ -3,22 +3,26 @@
 :root {
   font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
   --surface-0: #ffffff;
-  --surface-50: #f8fafc;
-  --surface-100: #f1f5f9;
-  --surface-200: #e2e8f0;
-  --surface-300: #cbd5e1;
-  --text-strong: #0f172a;
-  --text-soft: #475569;
-  --text-bold: #000000;
-  --brand-500: #0d9488;
-  --brand-600: #0d9488;
-  --brand-700: #0f766e;
-  --border-strong: #e2e8f0;
-  --ring-strong: rgba(13, 148, 136, 0.22);
+  --surface-50: #fafafa;
+  --surface-100: #f4f4f5;
+  --surface-200: #e4e4e7;
+  --surface-300: #d4d4d8;
+  --text-strong: #111827;
+  --text-soft: #52525b;
+  --text-bold: #09090b;
+  --brand-500: #52525b;
+  --brand-600: #3f3f46;
+  --brand-700: #27272a;
+  --border-strong: #d4d4d8;
+  --ring-strong: rgba(82, 82, 91, 0.18);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -28,15 +32,15 @@ body {
   background:
     radial-gradient(
       circle at 10% 20%,
-      rgba(191, 219, 254, 0.45),
+      rgba(228, 228, 231, 0.65),
       transparent 45%
     ),
     radial-gradient(
       circle at 90% 80%,
-      rgba(186, 230, 253, 0.35),
+      rgba(212, 212, 216, 0.45),
       transparent 45%
     ),
-    #f1f5f9;
+    #f4f4f5;
 }
 
 #app {
@@ -105,7 +109,7 @@ body {
 .admin-input.p-select .p-select-option:not(.p-disabled):hover,
 .admin-input.p-datepicker .p-datepicker-day:not(.p-disabled):hover,
 .admin-input.p-datepicker .p-datepicker-day.p-highlight {
-  background: rgba(2, 132, 199, 0.08);
+  background: rgba(82, 82, 91, 0.08);
 }
 
 .admin-panel {
@@ -132,7 +136,7 @@ body {
 
 .filepond--label-action {
   color: var(--brand-600);
-  text-decoration-color: rgba(2, 132, 199, 0.4);
+  text-decoration-color: rgba(82, 82, 91, 0.4);
 }
 
 .filepond--file {
@@ -155,7 +159,7 @@ body {
 
 .modern-segment .p-togglebutton.p-togglebutton-checked {
   border-color: var(--brand-500);
-  background: rgba(2, 132, 199, 0.1);
+  background: rgba(82, 82, 91, 0.1);
   color: var(--brand-700);
 }
 
@@ -164,25 +168,25 @@ body {
 .auth-input .p-password-input {
   width: 100%;
   border-radius: 0.9rem;
-  border: 1px solid #334155;
-  background: #1e293b;
-  color: #e2e8f0;
+  border: 1px solid #d4d4d8;
+  background: #fafafa;
+  color: #111827;
 }
 
 .auth-input .p-inputtext::placeholder,
 .auth-input .p-password-input::placeholder {
-  color: #94a3b8;
+  color: #71717a;
 }
 
 .auth-input .p-inputtext:enabled:focus,
 .auth-input .p-password.p-focus .p-password-input,
 .auth-input .p-password-input:enabled:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
+  border-color: #71717a;
+  box-shadow: 0 0 0 4px rgba(82, 82, 91, 0.15);
 }
 
 .auth-input .p-password .p-password-toggle-mask-icon {
-  color: #94a3b8;
+  color: #71717a;
 }
 
 /* ==================== TABLE UTILITIES ==================== */
@@ -202,7 +206,7 @@ table.data-table {
 }
 
 table.data-table thead {
-  background: linear-gradient(to right, #f8fafc, #f1f5f9);
+  background: linear-gradient(to right, #fafafa, #f4f4f5);
   border-bottom: 2px solid var(--border-strong);
 }
 
@@ -228,7 +232,7 @@ table.data-table tbody tr {
 }
 
 table.data-table tbody tr:hover {
-  background-color: #f0fdf9;
+  background-color: #f4f4f5;
 }
 
 table.data-table td {
@@ -248,7 +252,7 @@ table.data-table td {
   flex-shrink: 0;
   width: 1rem;
   height: 1rem;
-  color: #0d9488;
+  color: #52525b;
 }
 
 /* Status Badge */
@@ -473,4 +477,14 @@ table.data-table td {
 
 .empty-state-action:hover {
   background: #0f766e;
+}
+
+/* Ensure interactive elements show pointer cursor */
+button,
+[role="button"],
+.action-btn,
+.pagination-btn,
+.empty-state-action,
+.p-button {
+  cursor: pointer;
 }

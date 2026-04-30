@@ -21,6 +21,8 @@ import {
 import { formatDate } from "@/utils/format";
 import { Users, Plus, Edit2, Trash2 } from "lucide-vue-next";
 
+const NIS_REGEX = /^\d{1,8}$/;
+
 const users = ref([]);
 const loading = ref(false);
 const createDialogVisible = ref(false);
@@ -65,12 +67,15 @@ function openEditDialog(user) {
 }
 
 async function handleCreateUser() {
-  if (
-    !createForm.name.trim() ||
-    !createForm.nis.trim() ||
-    !createForm.password.trim()
-  ) {
+  const nis = createForm.nis.trim();
+
+  if (!createForm.name.trim() || !nis || !createForm.password.trim()) {
     showError("Semua field wajib diisi.");
+    return;
+  }
+
+  if (!NIS_REGEX.test(nis)) {
+    showError("NIS siswa harus 1-8 digit angka.");
     return;
   }
 
@@ -79,7 +84,7 @@ async function handleCreateUser() {
   try {
     await createSiswaUserByAdmin({
       name: createForm.name,
-      identity: createForm.nis,
+      identity: nis,
       password: createForm.password,
     });
     createDialogVisible.value = false;
@@ -154,7 +159,7 @@ onMounted(loadUsers);
     >
       <div class="space-y-1">
         <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-          <Users :size="28" class="text-teal-600" />
+          <Users :size="28" class="text-slate-700" />
           Manajemen User Siswa
         </h1>
         <p class="text-sm text-slate-600">Kelola akun siswa dan izin akses</p>
@@ -164,7 +169,7 @@ onMounted(loadUsers);
         icon="pi pi-plus"
         :loading="submitting"
         @click="openCreateDialog"
-        class="bg-teal-600 text-white hover:bg-teal-700"
+        class="bg-slate-900 text-white hover:bg-slate-800"
       />
     </div>
 
@@ -188,7 +193,7 @@ onMounted(loadUsers);
 
           <template #cell-role="{ item }">
             <span
-              class="inline-block rounded-full border border-blue-200 bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800"
+              class="inline-block rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700"
             >
               {{ item.role || "siswa" }}
             </span>
@@ -242,13 +247,17 @@ onMounted(loadUsers);
         </label>
 
         <label class="admin-input space-y-2">
-          <span class="font-semibold text-slate-900">NIS</span>
+          <span class="font-semibold text-slate-900">NIS Siswa</span>
           <InputText
             v-model="createForm.nis"
             class="w-full"
             required
-            placeholder="Contoh: 123456"
+            placeholder="Contoh: 12345678"
+            inputmode="numeric"
+            maxlength="8"
+            pattern="[0-9]*"
           />
+          <p class="text-xs text-slate-600">Maksimal 8 digit angka.</p>
         </label>
 
         <label class="admin-input space-y-2">

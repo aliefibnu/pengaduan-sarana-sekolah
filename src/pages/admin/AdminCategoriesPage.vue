@@ -151,7 +151,7 @@ onMounted(loadCategories);
     >
       <div class="space-y-1">
         <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900">
-          <Tag :size="28" class="text-teal-600" />
+          <Tag :size="28" class="text-slate-700" />
           Manajemen Kategori
         </h1>
         <p class="text-sm text-slate-600">
@@ -163,7 +163,7 @@ onMounted(loadCategories);
         icon="pi pi-plus"
         :loading="submitting"
         @click="openCreateDialog"
-        class="bg-teal-600 text-white hover:bg-teal-700"
+        class="bg-slate-900 text-white hover:bg-slate-800"
       />
     </div>
 
@@ -191,7 +191,7 @@ onMounted(loadCategories);
         >
           <template #cell-name="{ item }">
             <div class="flex items-center gap-2">
-              <Tag :size="16" class="text-teal-600" />
+              <Tag :size="16" class="text-slate-700" />
               <span class="font-semibold text-slate-900">{{ item.name }}</span>
             </div>
           </template>

@@ -164,7 +164,7 @@ async function handleSubmit() {
         class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4"
       >
         <h2 class="flex items-center gap-2 text-xl font-bold text-slate-900">
-          <MessageSquare :size="24" class="text-teal-600" />
+          <MessageSquare :size="24" class="text-slate-700" />
           Form Pengaduan Sarana
         </h2>
       </div>
@@ -173,9 +173,9 @@ async function handleSubmit() {
         <!-- Title Input -->
         <label class="admin-input space-y-2">
           <div class="flex items-center gap-2">
-            <PenTool :size="18" class="text-teal-600" />
+            <PenTool :size="18" class="text-slate-700" />
             <span class="font-semibold text-slate-900">Judul Pengaduan</span>
-            <span class="text-red-500">*</span>
+            <span class="text-slate-600">*</span>
           </div>
           <InputText
             v-model="form.title"
@@ -191,9 +191,9 @@ async function handleSubmit() {
         <!-- Description Input -->
         <label class="admin-input space-y-2">
           <div class="flex items-center gap-2">
-            <MessageSquare :size="18" class="text-teal-600" />
+            <MessageSquare :size="18" class="text-slate-700" />
             <span class="font-semibold text-slate-900">Deskripsi Masalah</span>
-            <span class="text-red-500">*</span>
+            <span class="text-slate-600">*</span>
           </div>
           <Textarea
             v-model="form.description"
@@ -210,9 +210,9 @@ async function handleSubmit() {
         <!-- Category Select -->
         <label class="admin-input space-y-2">
           <div class="flex items-center gap-2">
-            <Tag :size="18" class="text-teal-600" />
+            <Tag :size="18" class="text-slate-700" />
             <span class="font-semibold text-slate-900">Kategori</span>
-            <span class="text-red-500">*</span>
+            <span class="text-slate-600">*</span>
           </div>
           <Select
             v-model="form.category"
@@ -227,7 +227,7 @@ async function handleSubmit() {
           <div class="flex flex-wrap items-center justify-between gap-2">
             <p
               v-if="!categoryOptions.length"
-              class="text-xs font-medium text-amber-700"
+              class="text-xs font-medium text-slate-700"
             >
               ⚠️ Belum ada kategori tersedia. Tambahkan kategori terlebih
               dahulu.
@@ -246,7 +246,7 @@ async function handleSubmit() {
         <!-- File Upload -->
         <label class="space-y-2">
           <div class="flex items-center gap-2">
-            <ImageIcon :size="18" class="text-teal-600" />
+            <ImageIcon :size="18" class="text-slate-700" />
             <span class="font-semibold text-slate-900">Foto Bukti</span>
             <span class="text-xs font-medium text-slate-500">(Opsional)</span>
           </div>

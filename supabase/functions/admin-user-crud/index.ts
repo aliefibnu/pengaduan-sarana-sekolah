@@ -112,14 +112,16 @@ Deno.serve(async (req) => {
 
   if (action === "create") {
     const name = String(payload.name || "").trim();
-    const identity = normalizeIdentity(payload.identity);
+    const identity = String(payload.identity || "")
+      .trim()
+      .replace(/\s+/g, "");
     const password = String(payload.password || "");
 
     if (!name) {
       return jsonResponse({ error: "Nama siswa wajib diisi." }, 400);
     }
 
-    if (!identity || identity.length < 4) {
+    if (!/^\d{1,8}$/.test(identity)) {
       return jsonResponse({ error: "NIS tidak valid." }, 400);
     }
 

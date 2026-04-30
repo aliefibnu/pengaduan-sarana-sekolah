@@ -13,7 +13,7 @@ function buildAuthEmail(identity) {
   const normalizedIdentity = normalizeIdentity(identity);
 
   if (!normalizedIdentity) {
-    throw new Error("NIS atau username wajib diisi.");
+    throw new Error("NIS siswa atau username admin wajib diisi.");
   }
 
   return `${normalizedIdentity}@${AUTH_EMAIL_DOMAIN}`;

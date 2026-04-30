@@ -61,9 +61,7 @@ onMounted(loadData);
 </script>
 
 <template>
-  <main
-    class="min-h-screen bg-slate-950 px-4 py-8 text-slate-100 sm:px-6 lg:px-8"
-  >
+  <main class="min-h-screen bg-white px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
     <section class="mx-auto max-w-4xl space-y-6">
       <!-- Back Button -->
       <RouterLink
@@ -79,10 +77,10 @@ onMounted(loadData);
         class="rounded-lg border border-slate-700 bg-slate-900/30 backdrop-blur"
       >
         <div
-          class="border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4"
+          class="border-b border-slate-700 bg-linear-to-r from-slate-800 to-slate-900 px-6 py-4"
         >
           <h1 class="flex items-center gap-2 text-2xl font-bold text-white">
-            <AlertCircle :size="24" class="text-amber-400" />
+            <AlertCircle :size="24" class="text-slate-500" />
             {{ complaint?.title || "Loading..." }}
           </h1>
         </div>
@@ -105,7 +103,7 @@ onMounted(loadData);
               <span
                 class="inline-flex items-center gap-2 rounded-full border px-4 py-2 font-semibold"
                 :class="{
-                  'border-yellow-500/50 bg-yellow-500/20 text-yellow-100':
+                  'border-slate-300 bg-slate-50 text-slate-700':
                     complaint.status === 'pending',
                   'border-blue-500/50 bg-blue-500/20 text-blue-100':
                     complaint.status === 'process',
@@ -176,7 +174,7 @@ onMounted(loadData);
         </div>
 
         <div v-else class="px-6 py-8 text-center">
-          <p class="text-sm text-amber-300">
+          <p class="text-sm text-slate-600">
             ⚠️ Detail pengaduan tidak ditemukan atau tidak bisa diakses.
           </p>
         </div>
@@ -187,67 +185,16 @@ onMounted(loadData);
         class="rounded-lg border border-slate-700 bg-slate-900/30 backdrop-blur"
       >
         <div
-          class="border-b border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4"
+          class="border-b border-slate-700 bg-linear-to-r from-slate-800 to-slate-900 px-6 py-4"
         >
           <h2 class="flex items-center gap-2 text-xl font-bold text-white">
-            <MessageSquare :size="24" class="text-blue-400" />
+            <MessageSquare :size="24" class="text-slate-600" />
             Riwayat Penanganan
           </h2>
           <p class="mt-1 text-xs text-slate-400">Bersifat publik - read-only</p>
         </div>
 
         <div class="overflow-x-auto">
-          <style scoped>
-            /* Dark theme table overrides */
-            :deep(.data-table) {
-              --table-header-bg: rgba(15, 23, 42, 0.8);
-              --table-row-hover: rgba(30, 41, 59, 0.5);
-              --table-border: rgb(71, 85, 105);
-              --text-primary: rgb(226, 232, 240);
-              --text-secondary: rgb(148, 163, 184);
-            }
-
-            :deep(.data-table thead) {
-              background: linear-gradient(
-                to right,
-                rgba(30, 41, 59, 0.8),
-                rgba(15, 23, 42, 0.8)
-              );
-              border-bottom: 1px solid rgb(71, 85, 105);
-            }
-
-            :deep(.data-table thead th) {
-              color: rgb(226, 232, 240);
-              font-weight: 600;
-              text-transform: uppercase;
-              font-size: 0.75rem;
-            }
-
-            :deep(.data-table tbody tr) {
-              border-bottom: 1px solid rgb(51, 65, 85);
-              transition: background-color 0.2s;
-            }
-
-            :deep(.data-table tbody tr:hover) {
-              background-color: rgba(30, 41, 59, 0.5);
-            }
-
-            :deep(.data-table td) {
-              color: rgb(226, 232, 240);
-              padding: 1rem;
-            }
-
-            :deep(.status-badge) {
-              background-color: rgba(59, 130, 246, 0.2);
-              border-color: rgb(96, 165, 250);
-              color: rgb(191, 219, 254);
-            }
-
-            :deep(.empty-state) {
-              color: rgb(148, 163, 184);
-            }
-          </style>
-
           <DataTable
             :columns="feedbackColumns"
             :items="timelineItems"
@@ -266,7 +213,7 @@ onMounted(loadData);
               >
                 <div class="w-16 rounded-full bg-slate-700">
                   <div
-                    class="h-1.5 rounded-full bg-blue-500"
+                    class="h-1.5 rounded-full bg-slate-600"
                     :style="{ width: `${item.progress_percentage}%` }"
                   />
                 </div>
@@ -300,3 +247,54 @@ onMounted(loadData);
     </section>
   </main>
 </template>
+
+<style scoped>
+/* Dark theme table overrides */
+:deep(.data-table) {
+  --table-header-bg: rgba(15, 23, 42, 0.8);
+  --table-row-hover: rgba(30, 41, 59, 0.5);
+  --table-border: rgb(71, 85, 105);
+  --text-primary: rgb(226, 232, 240);
+  --text-secondary: rgb(148, 163, 184);
+}
+
+:deep(.data-table thead) {
+  background: linear-gradient(
+    to right,
+    rgba(30, 41, 59, 0.8),
+    rgba(15, 23, 42, 0.8)
+  );
+  border-bottom: 1px solid rgb(71, 85, 105);
+}
+
+:deep(.data-table thead th) {
+  color: rgb(226, 232, 240);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+:deep(.data-table tbody tr) {
+  border-bottom: 1px solid rgb(51, 65, 85);
+  transition: background-color 0.2s;
+}
+
+:deep(.data-table tbody tr:hover) {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+:deep(.data-table td) {
+  color: rgb(226, 232, 240);
+  padding: 1rem;
+}
+
+:deep(.status-badge) {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgb(96, 165, 250);
+  color: rgb(191, 219, 254);
+}
+
+:deep(.empty-state) {
+  color: rgb(148, 163, 184);
+}
+</style>

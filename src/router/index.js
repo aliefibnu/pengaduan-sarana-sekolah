@@ -32,7 +32,7 @@ const router = createRouter({
         guestOnly: true,
         title: "Masuk - Pengaduan Sarana Sekolah",
         description:
-          "Masuk sebagai siswa dengan NISN atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
+          "Masuk sebagai siswa dengan NIS 8 digit atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
         robots: "noindex, nofollow",
       },
       children: [
@@ -43,7 +43,7 @@ const router = createRouter({
           meta: {
             title: "Masuk - Pengaduan Sarana Sekolah",
             description:
-              "Masuk sebagai siswa dengan NISN atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
+              "Masuk sebagai siswa dengan NIS 8 digit atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
             robots: "noindex, nofollow",
           },
         },

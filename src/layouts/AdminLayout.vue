@@ -42,7 +42,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <main class="min-h-screen bg-slate-100 p-4 lg:p-6">
+  <main class="min-h-screen bg-slate-50 p-4 lg:p-6">
     <div class="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[18rem_1fr]">
       <AppSidebar title="Portal Admin" :menus="menus" />
 
