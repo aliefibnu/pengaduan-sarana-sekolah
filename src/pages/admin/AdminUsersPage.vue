@@ -32,6 +32,7 @@ const activeUserId = ref("");
 
 const columns = [
   { key: "name", label: "Nama Siswa", icon: Users, sortable: true },
+  { key: "nis", label: "NIS", icon: null, sortable: true },
   { key: "role", label: "Role", icon: null, sortable: true },
   { key: "created_at", label: "Dibuat", icon: null, sortable: true },
   { key: "actions", label: "Aksi", icon: null, sortable: false },
@@ -185,10 +186,13 @@ onMounted(loadUsers);
           empty-message="Mulai dengan menambahkan user pertama"
         >
           <template #cell-name="{ item }">
-            <div class="space-y-0.5">
-              <p class="font-semibold text-slate-900">{{ item.name }}</p>
-              <p class="font-mono text-xs text-slate-600">{{ item.nis }}</p>
-            </div>
+            <p class="font-semibold text-slate-900">{{ item.name }}</p>
+          </template>
+
+          <template #cell-nis="{ item }">
+            <span class="font-mono text-sm text-slate-700">{{
+              item.nis || "-"
+            }}</span>
           </template>
 
           <template #cell-role="{ item }">

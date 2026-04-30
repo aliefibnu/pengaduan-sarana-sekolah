@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import DataTable from "@/components/DataTable.vue";
 import { fetchComplaintById } from "@/services/complaintService";
 import { fetchFeedbackByComplaintId } from "@/services/feedbackService";
@@ -22,6 +23,7 @@ const route = useRoute();
 const loading = ref(false);
 const complaint = ref(null);
 const feedbacks = ref([]);
+const imagePreviewVisible = ref(false);
 
 const feedbackColumns = [
   { key: "message", label: "Pesan", icon: MessageSquare, sortable: false },
@@ -138,12 +140,42 @@ onMounted(loadData);
             </p>
           </div>
 
-          <img
+          <button
             v-if="complaint.image_url"
-            :src="complaint.image_url"
-            alt="Bukti"
-            class="max-h-64 w-full rounded-lg border border-slate-700 object-cover"
-          />
+            @click="imagePreviewVisible = true"
+            class="group w-full overflow-hidden rounded-lg border border-slate-700 transition hover:border-slate-600"
+          >
+            <img
+              :src="complaint.image_url"
+              alt="Bukti"
+              class="max-h-64 w-full rounded-lg object-cover"
+            />
+            <div
+              class="flex items-center justify-between bg-slate-800/40 px-4 py-2"
+            >
+              <span
+                class="flex items-center gap-2 text-sm font-medium text-slate-200"
+              >
+                <ImageIcon :size="16" />
+                Bukti Pengaduan
+              </span>
+              <span class="text-xs text-slate-400">Klik untuk perbesar</span>
+            </div>
+          </button>
+
+          <Dialog
+            v-model:visible="imagePreviewVisible"
+            modal
+            header="Preview Bukti Pengaduan"
+            :style="{ width: 'min(64rem, 96vw)' }"
+          >
+            <img
+              v-if="complaint?.image_url"
+              :src="complaint.image_url"
+              alt="Bukti pengaduan"
+              class="max-h-[78vh] w-full rounded-xl object-contain"
+            />
+          </Dialog>
 
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="rounded-lg border border-slate-700 bg-slate-800/50 p-3">

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 import Slider from "primevue/slider";
 import Textarea from "primevue/textarea";
 import DataTable from "@/components/DataTable.vue";
@@ -173,12 +174,40 @@ onMounted(loadData);
           {{ selected.description }}
         </p>
 
-        <img
+        <button
           v-if="selected.image_url"
-          :src="selected.image_url"
-          alt="Bukti"
-          class="max-h-64 w-full rounded-lg border border-slate-300 object-cover"
-        />
+          @click="openImagePreview"
+          class="group w-full overflow-hidden rounded-lg border border-slate-300 transition hover:border-slate-400"
+        >
+          <img
+            :src="selected.image_url"
+            alt="Bukti"
+            class="max-h-64 w-full rounded-lg object-cover"
+          />
+          <div class="flex items-center justify-between bg-slate-50 px-4 py-2">
+            <span
+              class="flex items-center gap-2 text-sm font-medium text-slate-700"
+            >
+              <MessageSquare :size="16" />
+              Bukti Pengaduan
+            </span>
+            <span class="text-xs text-slate-500">Klik untuk perbesar</span>
+          </div>
+        </button>
+
+        <Dialog
+          v-model:visible="imagePreviewVisible"
+          modal
+          header="Preview Bukti Pengaduan"
+          :style="{ width: 'min(64rem, 96vw)' }"
+        >
+          <img
+            v-if="selected?.image_url"
+            :src="selected.image_url"
+            alt="Bukti pengaduan"
+            class="max-h-[78vh] w-full rounded-xl object-contain"
+          />
+        </Dialog>
       </div>
     </article>
 

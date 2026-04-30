@@ -1,6 +1,6 @@
 <script setup>
 import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
@@ -11,7 +11,7 @@ import {
   showError,
   showSuccess,
 } from "@/utils/notifications";
-import { User, Lock, LogIn } from "lucide-vue-next";
+import { User, Lock, LogIn, ArrowLeft } from "lucide-vue-next";
 
 const NIS_REGEX = /^\d{1,8}$/;
 
@@ -61,6 +61,12 @@ async function handleSubmit() {
 
 <template>
   <div class="w-full space-y-6">
+    <!-- Back Button -->
+    <RouterLink to="/" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+      <ArrowLeft :size="18" />
+      Kembali ke Beranda
+    </RouterLink>
+
     <!-- Header -->
     <div class="space-y-2">
       <div class="flex items-center gap-3">

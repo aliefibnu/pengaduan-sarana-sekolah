@@ -32,6 +32,52 @@ function buildAuthEmail(identity: string) {
   return `${identity}@${AUTH_EMAIL_DOMAIN}`;
 }
 
+function resolveNisFromAuthUser(authUser: {
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+}) {
+  const metadataNisn = String(authUser?.user_metadata?.nisn || "").trim();
+  if (/^\d{1,8}$/.test(metadataNisn)) {
+    return metadataNisn;
+  }
+
+  const localPart = String(authUser?.email || "").split("@")[0] || "";
+  if (/^\d{1,8}$/.test(localPart)) {
+    return localPart;
+  }
+
+  return "";
+}
+
+async function isCallerAdmin(
+  adminClient: ReturnType<typeof createClient>,
+  callerUser: {
+    id: string;
+    user_metadata?: Record<string, unknown> | null;
+    app_metadata?: Record<string, unknown> | null;
+  },
+) {
+  const metadataRole = String(
+    callerUser?.user_metadata?.role || callerUser?.app_metadata?.role || "",
+  ).toLowerCase();
+
+  if (metadataRole === "admin") {
+    return true;
+  }
+
+  const { data: callerProfile, error: profileError } = await adminClient
+    .from("users")
+    .select("role")
+    .eq("id", callerUser.id)
+    .maybeSingle();
+
+  if (profileError) {
+    return false;
+  }
+
+  return String(callerProfile?.role || "").toLowerCase() === "admin";
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -77,17 +123,8 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Sesi user tidak valid." }, 401);
   }
 
-  const { data: callerProfile, error: profileError } = await adminClient
-    .from("users")
-    .select("role")
-    .eq("id", callerUser.id)
-    .single();
-
-  if (profileError) {
-    return jsonResponse({ error: "Gagal memvalidasi peran admin." }, 403);
-  }
-
-  if (callerProfile?.role !== "admin") {
+  const callerIsAdmin = await isCallerAdmin(adminClient, callerUser);
+  if (!callerIsAdmin) {
     return jsonResponse(
       { error: "Hanya admin yang diizinkan menjalankan aksi ini." },
       403,
@@ -109,6 +146,53 @@ Deno.serve(async (req) => {
   }
 
   const action = payload.action;
+
+  if (action === "list") {
+    const { data: profiles, error: profilesError } = await adminClient
+      .from("users")
+      .select("id, name, role, created_at")
+      .order("created_at", { ascending: false });
+
+    if (profilesError) {
+      return jsonResponse({ error: "Gagal mengambil daftar user." }, 400);
+    }
+
+    const { data: authPage, error: authError } =
+      await adminClient.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000,
+      });
+
+    if (authError) {
+      return jsonResponse(
+        { error: authError.message || "Gagal mengambil data auth user." },
+        400,
+      );
+    }
+
+    const authUsers = authPage?.users || [];
+    const authMap = new Map(
+      authUsers.map((user) => [
+        user.id,
+        {
+          email: user.email,
+          user_metadata: user.user_metadata,
+        },
+      ]),
+    );
+
+    const users = (profiles || [])
+      .filter((profile) => profile.role === "siswa")
+      .map((profile) => {
+        const authUser = authMap.get(profile.id);
+        return {
+          ...profile,
+          nis: resolveNisFromAuthUser(authUser || {}),
+        };
+      });
+
+    return jsonResponse({ users });
+  }
 
   if (action === "create") {
     const name = String(payload.name || "").trim();
@@ -139,6 +223,7 @@ Deno.serve(async (req) => {
         user_metadata: {
           name,
           role: "siswa",
+          nisn: identity,
         },
       });
 

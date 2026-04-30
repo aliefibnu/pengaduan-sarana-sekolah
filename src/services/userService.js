@@ -43,13 +43,25 @@ async function extractEdgeFunctionErrorMessage(error, fallbackMessage) {
 }
 
 export async function fetchUsers() {
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, name, role, created_at")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.functions.invoke("admin-user-crud", {
+    body: {
+      action: "list",
+    },
+  });
 
-  if (error) throw error;
-  return data;
+  if (error) {
+    const message = await extractEdgeFunctionErrorMessage(
+      error,
+      "Gagal mengambil data user.",
+    );
+    throw new Error(message);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  return data?.users || [];
 }
 
 export async function createSiswaUserByAdmin({ name, identity, password }) {

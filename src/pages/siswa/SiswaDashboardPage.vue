@@ -105,11 +105,9 @@ onMounted(async () => {
         <p class="text-sm text-slate-600">Ringkasan laporan pengaduan Anda</p>
       </div>
       <RouterLink to="/siswa/new">
-        <Button
-          label="Buat Pengaduan"
-          :icon="Plus"
-          class="bg-slate-900 text-white hover:bg-slate-800"
-        />
+        <Button label="Buat Pengaduan" class="bg-slate-900 text-white hover:bg-slate-800">
+          <Plus slot="icon" />
+        </Button>
       </RouterLink>
     </div>
 
@@ -180,7 +178,7 @@ onMounted(async () => {
 
           <template #cell-title="{ item }">
             <RouterLink
-              :to="`/siswa/detail/${item.id}`"
+              :to="`/siswa/history/${item.id}`"
               class="line-clamp-1 text-sm text-slate-700 hover:underline"
             >
               {{ item.title }}
@@ -234,7 +232,7 @@ onMounted(async () => {
           </template>
 
           <template #cell-actions="{ item }">
-            <RouterLink :to="`/siswa/detail/${item.id}`">
+            <RouterLink :to="`/siswa/history/${item.id}`">
               <button
                 class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
