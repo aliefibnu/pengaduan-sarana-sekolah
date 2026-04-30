@@ -62,7 +62,10 @@ async function handleSubmit() {
 <template>
   <div class="w-full space-y-6">
     <!-- Back Button -->
-    <RouterLink to="/" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+    <RouterLink
+      to="/"
+      class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+    >
       <ArrowLeft :size="18" />
       Kembali ke Beranda
     </RouterLink>
