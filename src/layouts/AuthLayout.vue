@@ -76,7 +76,7 @@
           <p class="mt-4 text-sm text-slate-600">
             Jika ada masalah login, hubungi admin sekolah untuk bantuan.
           </p>
-          
+
           <!-- Moved: Informasi Login -->
           <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
             <p class="text-sm text-blue-800">
