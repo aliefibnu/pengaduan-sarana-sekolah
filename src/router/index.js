@@ -10,9 +10,9 @@ const router = createRouter({
       name: "home",
       component: () => import("@/views/HomeView.vue"),
       meta: {
-        title: "Pengaduan Sarana Sekolah",
+        title: "Benerin Dong",
         description:
-          "Aplikasi pengaduan sarana sekolah untuk siswa dan admin dengan alur laporan yang cepat, transparan, dan mudah dipantau.",
+          "Aplikasi Benerin Dong untuk siswa dan admin dengan alur laporan yang cepat, transparan, dan mudah dipantau.",
       },
     },
     {
@@ -20,34 +20,22 @@ const router = createRouter({
       name: "public-complaint-detail",
       component: () => import("@/pages/public/PublicComplaintDetailPage.vue"),
       meta: {
-        title: "Detail Aduan - Pengaduan Sarana Sekolah",
+        title: "Detail Aduan - Benerin Dong",
         description:
-          "Lihat detail aduan sarana sekolah secara read-only lengkap dengan status dan riwayat penanganan.",
+          "Lihat detail aduan secara read-only lengkap dengan status dan riwayat penanganan.",
       },
     },
     {
       path: "/login",
-      component: () => import("@/layouts/AuthLayout.vue"),
+      name: "login",
+      component: () => import("@/pages/auth/LoginPage.vue"),
       meta: {
         guestOnly: true,
-        title: "Masuk - Pengaduan Sarana Sekolah",
+        title: "Masuk - Benerin Dong",
         description:
-          "Masuk sebagai siswa dengan NIS 8 digit atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
+          "Masuk sebagai siswa dengan NIS 8 digit atau admin dengan username untuk mengakses dashboard Benerin Dong.",
         robots: "noindex, nofollow",
       },
-      children: [
-        {
-          path: "",
-          name: "login",
-          component: () => import("@/pages/auth/LoginPage.vue"),
-          meta: {
-            title: "Masuk - Pengaduan Sarana Sekolah",
-            description:
-              "Masuk sebagai siswa dengan NIS 8 digit atau admin dengan username untuk mengakses dashboard pengaduan sarana sekolah.",
-            robots: "noindex, nofollow",
-          },
-        },
-      ],
     },
     {
       path: "/siswa",

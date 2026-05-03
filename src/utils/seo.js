@@ -1,6 +1,6 @@
-const DEFAULT_SITE_NAME = "Pengaduan Sarana Sekolah";
+const DEFAULT_SITE_NAME = "Benerin Dong";
 const DEFAULT_DESCRIPTION =
-  "Aplikasi pengaduan sarana sekolah untuk siswa dan admin dengan alur laporan yang cepat, transparan, dan mudah dipantau.";
+  "Platform untuk melaporkan masalah sarana sekolah dan memantau perbaikannya secara real-time.";
 const DEFAULT_IMAGE_PATH = "/og-image.svg";
 
 function getBaseUrl() {
