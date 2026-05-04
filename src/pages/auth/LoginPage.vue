@@ -4,7 +4,7 @@
 		<div class="relative z-10 w-full max-w-md px-6">
 			<form @submit.prevent="handleSubmit" class="relative bg-gradient-to-br from-white/8 to-white/6 border border-white/10 backdrop-blur-md rounded-3xl p-8 shadow-2xl overflow-hidden">
 				<div class="absolute -left-10 -top-10 w-40 h-40 bg-gradient-to-br from-indigo-500 to-sky-400 opacity-20 rounded-full blur-3xl"></div>
-				<div class="absolute -right-8 -bottom-8 w-36 h-36 bg-gradient-to-tr from-pink-500 to-amber-400 opacity-18 rounded-full blur-3xl"></div>
+				<div class="absolute -right-8 -bottom-8 w-36 h-36 bg-linear-to-tr from-pink-500 to-amber-400 opacity-18 rounded-full blur-3xl"></div>
 
 				<div class="flex items-center gap-3 mb-6">
 					<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-lg">🔧</div>
